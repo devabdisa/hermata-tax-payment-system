@@ -136,10 +136,9 @@ export function DashboardPageClient({ dict, lang }: DashboardPageClientProps) {
               unit={metric.unit}
               icon={metric.icon}
               description={metric.description}
-              trend={{
-                value: trend.percentage,
-                isPositive: trend.isPositive,
-                label: 'vs last month'
+              change={{
+                value: trend.value,
+                trend: trend.isPositive ? 'up' : 'down'
               }}
               href={metric.href}
               variant={metric.variant}

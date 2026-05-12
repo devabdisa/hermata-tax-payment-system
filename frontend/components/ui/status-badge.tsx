@@ -180,9 +180,9 @@ export const StatusBadge = React.memo(({
 
   // Size variants
   const sizeClasses = {
-    sm: 'px-2 py-0.5 text-[10px] uppercase tracking-wider gap-1',
-    md: 'px-2.5 py-1 text-xs uppercase tracking-wider gap-1.5',
-    lg: 'px-3 py-1.5 text-sm uppercase tracking-wider gap-2',
+    sm: 'px-2 py-0.5 text-xs uppercase tracking-wider gap-1',
+    md: 'px-2.5 py-1 text-sm uppercase tracking-wider gap-1.5',
+    lg: 'px-3 py-1.5 text-base uppercase tracking-wider gap-2',
   };
 
   const iconSizes = {
