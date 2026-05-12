@@ -10,7 +10,9 @@ import { Plus, Calculator } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
-export function AssessmentsPageClient() {
+import { Suspense } from "react";
+
+function AssessmentsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [assessments, setAssessments] = useState<TaxAssessment[]>([]);
@@ -75,5 +77,14 @@ export function AssessmentsPageClient() {
         onRefresh={fetchAssessments}
       />
     </div>
+  );
+}
+
+
+export function AssessmentsPageClient() {
+  return (
+    <Suspense fallback={<div className="flex h-[400px] items-center justify-center">Loading...</div>}>
+      <AssessmentsPageContent />
+    </Suspense>
   );
 }

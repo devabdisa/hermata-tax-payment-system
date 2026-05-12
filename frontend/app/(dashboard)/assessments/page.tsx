@@ -1,3 +1,5 @@
+"use client";
+
 import { AssessmentsPageClient } from "@/features/assessments/components/assessments-page-client";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";

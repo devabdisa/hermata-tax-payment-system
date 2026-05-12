@@ -48,7 +48,7 @@ export function AppSidebar({ locale, dict, role }: { locale: string, dict: Dicti
   });
 
   return (
-    <aside className="hidden w-64 flex-col border-r bg-muted/40 md:flex">
+    <aside className="hidden w-64 flex-col border-r bg-card md:flex">
       <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
         <Link href={`/dashboard`} className="flex items-center gap-2 font-semibold text-primary">
           <span className="text-xl font-bold">{dict?.common?.appName || "Hermata Tax"}</span>
@@ -68,11 +68,11 @@ export function AppSidebar({ locale, dict, role }: { locale: string, dict: Dicti
                   "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
                   isActive
                     ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
               >
                 {Icon && <Icon className="h-4 w-4" />}
-                {item.title}
+                {(dict?.common as Record<string, string>)?.[item.iconKey === 'layout-dashboard' ? 'dashboard' : item.iconKey === 'user-square-2' ? 'propertyOwners' : item.iconKey === 'file-text' ? 'propertyDocuments' : item.iconKey === 'map-pin' ? 'locationCategories' : item.iconKey === 'percent' ? 'taxRates' : item.iconKey === 'bar-chart-3' ? 'reports' : item.iconKey === 'shield-check' ? 'auditLogs' : item.title.toLowerCase()] || item.title}
               </Link>
             );
           })}
