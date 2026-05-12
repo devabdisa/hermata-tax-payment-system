@@ -20,8 +20,11 @@ import {
   User,
   AlertCircle,
   History,
-  Info
+  Info,
+  CreditCard,
+  CheckCircle2
 } from "lucide-react";
+import Link from "next/link";
 
 interface AssessmentDetailProps {
   assessment: TaxAssessment;
@@ -153,15 +156,36 @@ export function AssessmentDetail({ assessment, onRefresh }: AssessmentDetailProp
             <CardContent className="pt-6">
               <div className="flex items-start gap-3">
                 <Info className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div className="space-y-2">
+                <div className="space-y-2 w-full">
                   <h4 className="text-sm font-bold text-blue-900">Payment Status</h4>
-                  <p className="text-xs text-blue-800">
-                    Payment processing and receipt verification via Sinqee Bank will be available in the next module.
-                  </p>
                   {assessment.status === "ISSUED" && (
-                    <Button variant="outline" size="sm" className="w-full bg-white border-blue-200 text-blue-700" disabled>
-                      Record Payment (Coming Soon)
+                    <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-all hover:shadow-lg active:scale-95">
+                      <Link href={`/assessments/${assessment.id}/pay`}>
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        Record Payment
+                      </Link>
                     </Button>
+                  )}
+                  {assessment.status === "PAID" && (
+                    <div className="space-y-3">
+                      <div className="bg-emerald-500/10 p-3 rounded-lg border border-emerald-500/20 text-center">
+                        <p className="text-sm font-bold text-emerald-700 flex items-center justify-center gap-2">
+                          <CheckCircle2 className="h-4 w-4" />
+                          Payment Verified
+                        </p>
+                      </div>
+                      <Button asChild variant="outline" className="w-full border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                        <Link href={`/payments`}>
+                          <FileText className="mr-2 h-4 w-4" />
+                          View Payments
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                  {assessment.status !== "ISSUED" && assessment.status !== "PAID" && (
+                    <p className="text-xs text-blue-800">
+                      Payment is only available for ISSUED assessments.
+                    </p>
                   )}
                 </div>
               </div>

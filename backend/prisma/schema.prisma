@@ -40,6 +40,7 @@ model User {
   reviewedProperties   Property[]          @relation("PropertyReviewedBy")
   approvedProperties   Property[]          @relation("PropertyApprovedBy")
   reviewedDocuments    PropertyDocument[]  @relation("DocumentReviewedBy")
+  cancelledConfirmations KebeleConfirmation[] @relation("ConfirmationCancelledBy")
 
   @@map("user")
 }
@@ -137,6 +138,7 @@ enum AssessmentStatus {
 enum PaymentMethod {
   ONLINE
   SINQEE_BANK
+  CHAPA
   CASH_MANUAL
   OTHER
 }
@@ -302,21 +304,33 @@ model Payment {
   id              String        @id @default(cuid())
   assessmentId    String
   assessment      TaxAssessment @relation(fields: [assessmentId], references: [id])
-  payerId         String
+  payerId         String?
   method          PaymentMethod
   status          PaymentStatus @default(PENDING)
   amount          Decimal       @db.Decimal(12, 2)
   paidAt          DateTime?
   referenceNumber String?
-  bankName        String?       @default("Sinqee Bank")
+  bankName        String?
   bankBranch      String?
   receiptFileUrl  String?
+  receiptFileName String?
   
+  // Chapa-specific fields
+  txRef              String?   @unique
+  chapaCheckoutUrl   String?
+  chapaTransactionId String?
+  chapaStatus        String?
+  chapaPayload       Json?
+  returnUrl          String?
+  callbackUrl        String?
+
   verifiedById    String?
   verifiedBy      User?         @relation("PaymentVerifiedBy", fields: [verifiedById], references: [id])
   
   verifiedAt      DateTime?
   rejectionReason String?
+  cancellationReason String?
+  note            String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
@@ -334,6 +348,15 @@ model KebeleConfirmation {
   issuedBy           User               @relation("ConfirmationIssuedBy", fields: [issuedById], references: [id])
   
   issuedAt           DateTime           @default(now())
+  
+  cancelledById      String?
+  cancelledBy        User?              @relation("ConfirmationCancelledBy", fields: [cancelledById], references: [id])
+  cancelledAt        DateTime?
+  cancellationReason String?
+
+  printCount         Int                @default(0)
+  lastPrintedAt      DateTime?
+
   fileUrl            String?
   note               String?
   createdAt          DateTime           @default(now())
