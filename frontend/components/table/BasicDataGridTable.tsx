@@ -489,7 +489,7 @@ export function BasicDataGrid<T>({
 
       <div className='overflow-hidden rounded-xl border border-border bg-card shadow-sm ring-1 ring-border/35'>
         <Table>
-          <TableHeader className='border-b border-border bg-muted/45'>
+          <TableHeader className='border-b border-border bg-muted/60'>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
                 key={headerGroup.id}
@@ -498,7 +498,7 @@ export function BasicDataGrid<T>({
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className='h-11 px-4 py-4 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground'
+                    className='h-12 px-4 py-4 text-xs font-semibold tracking-wider text-muted-foreground'
                   >
                     {flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>

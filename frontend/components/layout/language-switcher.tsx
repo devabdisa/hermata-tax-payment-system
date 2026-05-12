@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import {
   Select,
   SelectContent,
@@ -15,7 +16,7 @@ const languages = [
   { code: "om", label: "Afaan Oromoo" },
 ];
 
-export function LanguageSwitcher({ currentLocale }: { currentLocale: string }) {
+function LanguageSwitcherContent({ currentLocale }: { currentLocale: string }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -51,5 +52,13 @@ export function LanguageSwitcher({ currentLocale }: { currentLocale: string }) {
         ))}
       </SelectContent>
     </Select>
+  );
+}
+
+export function LanguageSwitcher({ currentLocale }: { currentLocale: string }) {
+  return (
+    <Suspense fallback={<div className="w-[130px] h-9 bg-muted rounded-md animate-pulse"></div>}>
+      <LanguageSwitcherContent currentLocale={currentLocale} />
+    </Suspense>
   );
 }

@@ -51,9 +51,9 @@ export function PropertiesPageClient() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Properties</h1>
-          <p className="text-muted-foreground">
-            Manage house/property records, file numbers, and approval status.
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Properties</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage house records, file numbers, ownership type, land size, and approval status.
           </p>
         </div>
         <div className="flex gap-2">

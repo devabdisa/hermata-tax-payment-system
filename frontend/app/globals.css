@@ -39,41 +39,42 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
 }
 
 :root {
-  --radius: 0.5rem;
-  /* Light mode - Professional Government/Bank Theme (Blue & Gold/Teal) */
-  --background: #f8fafc;
+  --radius: 0.6rem;
+  /* Light mode - Modern Civic Glass Dashboard Theme */
+  --background: #f8fafc; /* Soft neutral background */
   --foreground: #0f172a;
-  --card: #ffffff;
+  --card: #ffffff; /* Clean white cards */
   --card-foreground: #0f172a;
   --popover: #ffffff;
   --popover-foreground: #0f172a;
 
-  --primary: #1e3a8a; /* Indigo 900 */
+  --primary: #1e3a8a; /* Indigo 900 - professional civic feeling */
   --primary-foreground: #ffffff;
 
-  --secondary: #e2e8f0; /* Slate 200 */
+  --secondary: #f1f5f9; /* Slate 100 */
   --secondary-foreground: #1e3a8a;
 
   --muted: #f1f5f9; /* Slate 100 */
   --muted-foreground: #64748b; /* Slate 500 */
 
-  --accent: #f1f5f9;
+  --accent: #f8fafc;
   --accent-foreground: #1e3a8a;
 
   --destructive: #ef4444; /* Red 500 */
   --destructive-foreground: #ffffff;
 
-  --border: #e2e8f0; /* Slate 200 */
+  --border: #e2e8f0; /* Gentle borders */
   --input: #e2e8f0;
   --ring: #1e3a8a;
 
   /* Chart colors */
   --chart-1: #1e3a8a;
-  --chart-2: #0f766e;
-  --chart-3: #10b981;
+  --chart-2: #10b981; /* Emerald accents */
+  --chart-3: #0f766e;
   --chart-4: #0f172a;
   --chart-5: #94a3b8;
 
@@ -117,8 +118,8 @@
   
   /* Chart colors for dark mode */
   --chart-1: #3b82f6;
-  --chart-2: #14b8a6;
-  --chart-3: #10b981;
+  --chart-2: #10b981;
+  --chart-3: #14b8a6;
   --chart-4: #94a3b8;
   --chart-5: #1e293b;
   

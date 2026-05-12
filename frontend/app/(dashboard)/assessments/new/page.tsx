@@ -35,8 +35,8 @@ function NewAssessmentContent() {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create Tax Assessment</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Create Tax Assessment</h1>
+          <p className="text-muted-foreground mt-1">
             Generate a yearly tax assessment for an approved property.
           </p>
         </div>
