@@ -9,13 +9,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
+import { type Dictionary } from "@/lib/get-dictionary";
 
-export function LocationCategoriesPageClient() {
+interface LocationCategoriesPageClientProps {
+  dict: Dictionary;
+}
+
+export function LocationCategoriesPageClient({ dict }: LocationCategoriesPageClientProps) {
   const [categories, setCategories] = useState<LocationCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Assuming a generic useDebounce hook exists, or we implement a simple one:
   const debouncedSearch = useDebounce(searchQuery, 500);
 
   const fetchCategories = async () => {
@@ -38,12 +42,12 @@ export function LocationCategoriesPageClient() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Location Categories</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{dict.common.locationCategories}</h1>
           <p className="text-muted-foreground">
             Manage area/location levels used to calculate yearly house tax rates.
           </p>
         </div>
-        <LocationCategoryFormDialog onSuccess={fetchCategories} />
+        <LocationCategoryFormDialog onSuccess={fetchCategories} dict={dict} />
       </div>
 
       <Card>
@@ -52,7 +56,7 @@ export function LocationCategoriesPageClient() {
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by code or name..."
+                placeholder={dict.common?.search || "Search..."}
                 className="pl-8"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -65,6 +69,7 @@ export function LocationCategoriesPageClient() {
             categories={categories} 
             isLoading={isLoading} 
             onRefresh={fetchCategories} 
+            dict={dict}
           />
         </CardContent>
       </Card>

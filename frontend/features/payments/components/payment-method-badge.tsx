@@ -6,22 +6,23 @@ import { CreditCard, Landmark, Globe } from "lucide-react";
 interface PaymentMethodBadgeProps {
   method: PaymentMethod;
   className?: string;
+  dict?: any;
 }
 
-export function PaymentMethodBadge({ method, className }: PaymentMethodBadgeProps) {
+export function PaymentMethodBadge({ method, className, dict }: PaymentMethodBadgeProps) {
   const configs: Record<PaymentMethod, { label: string; icon: any; class: string }> = {
     SINQEE_BANK: { 
-      label: "Sinqee Bank", 
+      label: dict?.payments?.sinqeeBankReceipt || "Sinqee Bank", 
       icon: Landmark, 
       class: "bg-orange-50 text-orange-700 border-orange-100" 
     },
     CHAPA: { 
-      label: "Chapa (Online)", 
+      label: dict?.payments?.payWithChapa || "Chapa (Online)", 
       icon: Globe, 
       class: "bg-indigo-50 text-indigo-700 border-indigo-100" 
     },
     ONLINE: { 
-      label: "Online", 
+      label: dict?.payments?.payOnline || "Online", 
       icon: Globe, 
       class: "bg-blue-50 text-blue-700 border-blue-100" 
     },

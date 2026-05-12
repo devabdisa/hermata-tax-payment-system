@@ -16,11 +16,13 @@ import { Upload, Loader2, FileIcon, Landmark, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
+import { type Dictionary } from "@/lib/get-dictionary";
+
 interface SinqeeReceiptPaymentFormProps {
   assessment: any;
   onSubmit: (formData: FormData) => Promise<void>;
   isLoading?: boolean;
-  dict?: any;
+  dict: Dictionary;
 }
 
 export function SinqeeReceiptPaymentForm({
@@ -72,10 +74,10 @@ export function SinqeeReceiptPaymentForm({
     <div className="space-y-6">
       <Alert className="bg-amber-50 border-amber-200 text-amber-800">
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Important Note</AlertTitle>
+        <AlertTitle>{dict.confirmations.revocationReason || "Important Note"}</AlertTitle>
         <AlertDescription>
-          Sinqee Bank payments require manual verification by a Kebele worker. 
-          Please ensure the uploaded receipt is clear and the reference number is correct.
+          {dict.confirmations.onlyVerifiedCanReceive} 
+          {dict.payments.sinqeeBankReceipt} require manual verification.
         </AlertDescription>
       </Alert>
 
@@ -87,8 +89,8 @@ export function SinqeeReceiptPaymentForm({
               <Landmark className="h-6 w-6" />
             </div>
             <div>
-              <CardTitle className="text-xl">Sinqee Bank Receipt</CardTitle>
-              <CardDescription>Record a manual bank payment by uploading your receipt</CardDescription>
+              <CardTitle className="text-xl">{dict.payments.sinqeeBankReceipt}</CardTitle>
+              <CardDescription>{dict.payments.paymentProcessing}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -98,19 +100,19 @@ export function SinqeeReceiptPaymentForm({
               <div className="space-y-6">
                 <RHFNumberField
                   name="amount"
-                  label="Payment Amount (ETB)"
+                  label={dict.dashboardCards.totalPayments || "Amount"}
                   disabled
                 />
                 
                 <RHFDatePicker
                   name="paidAt"
-                  label="Payment Date (on Receipt)"
+                  label={dict.payments.paidAt}
                 />
 
                 <RHFTextField
                   name="referenceNumber"
-                  label="Bank Reference Number"
-                  placeholder="Enter the receipt reference number"
+                  label={dict.payments.referenceNumber}
+                  placeholder="..."
                   leftIcon="hash"
                 />
               </div>
@@ -118,13 +120,13 @@ export function SinqeeReceiptPaymentForm({
               <div className="space-y-6">
                 <RHFTextField
                   name="bankBranch"
-                  label="Bank Branch (Optional)"
-                  placeholder="e.g. Hermata Branch"
+                  label="Bank Branch"
+                  placeholder="..."
                   leftIcon="mapPin"
                 />
 
                 <div className="space-y-2">
-                  <Label htmlFor="file-upload" className="text-base">Upload Receipt (PDF or Image)</Label>
+                  <Label htmlFor="file-upload" className="text-base">{dict.payments.receiptFile}</Label>
                   <div className="border-2 border-dashed border-muted rounded-xl p-6 transition-colors hover:border-primary/50 group bg-slate-50/50">
                     <Input
                       id="file-upload"
@@ -141,37 +143,19 @@ export function SinqeeReceiptPaymentForm({
                         <Upload className="h-6 w-6 text-primary" />
                       </div>
                       <div className="space-y-1">
-                        <p className="font-medium text-slate-700">Click to upload or drag and drop</p>
+                        <p className="font-medium text-slate-700">{dict.common?.search || "Upload"}</p>
                         <p className="text-xs text-muted-foreground">PDF, JPG, PNG or WEBP (Max. 10MB)</p>
                       </div>
                     </label>
                   </div>
-                  
-                  {errors.file && (
-                    <p className="text-sm text-destructive font-medium mt-1">
-                      {errors.file.message as string}
-                    </p>
-                  )}
-                  
-                  {selectedFile && (
-                    <div className="flex items-center gap-3 text-sm bg-primary/5 border border-primary/10 p-3 rounded-lg mt-2 animate-in fade-in slide-in-from-top-1">
-                      <div className="p-2 bg-white rounded-md border shadow-sm">
-                        <FileIcon className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-slate-900 truncate">{selectedFile.name}</p>
-                        <p className="text-xs text-muted-foreground">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
 
               <div className="md:col-span-2">
                 <RHFTextArea
                   name="note"
-                  label="Additional Note (Optional)"
-                  placeholder="Any additional information about the payment..."
+                  label="Note"
+                  placeholder="..."
                   rows={3}
                 />
               </div>
@@ -187,7 +171,7 @@ export function SinqeeReceiptPaymentForm({
                 ) : (
                   <>
                     <Upload className="mr-2 h-5 w-5" />
-                    Submit Receipt
+                    {dict.common?.submit || "Submit"}
                   </>
                 )}
               </Button>

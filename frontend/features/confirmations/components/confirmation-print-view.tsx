@@ -7,11 +7,14 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, ShieldCheck, Landmark, Home, User, Calendar, Hash, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+import { type Dictionary } from "@/lib/get-dictionary";
+
 interface ConfirmationPrintViewProps {
   confirmation: KebeleConfirmation;
+  dict: Dictionary;
 }
 
-export function ConfirmationPrintView({ confirmation }: ConfirmationPrintViewProps) {
+export function ConfirmationPrintView({ confirmation, dict }: ConfirmationPrintViewProps) {
   const payment = confirmation.payment;
   const assessment = payment?.assessment;
   const property = assessment?.property;
@@ -22,15 +25,15 @@ export function ConfirmationPrintView({ confirmation }: ConfirmationPrintViewPro
       {/* Decorative Kebele Stamp/Seal Placeholder */}
       <div className="absolute top-10 right-10 opacity-10 pointer-events-none select-none -rotate-12">
         <div className="border-4 border-emerald-600 rounded-full w-32 h-32 flex items-center justify-center text-emerald-600 font-black text-center text-xs p-2">
-          HERMATA KEBELE<br/>OFFICIAL SEAL<br/>CONFIRMED
+          {dict.common.appName?.toUpperCase()}<br/>OFFICIAL SEAL<br/>CONFIRMED
         </div>
       </div>
 
       <div className="text-center space-y-2 mb-10">
         <h1 className="text-2xl font-black tracking-tight uppercase italic text-slate-900">Hermata Kebele Administration</h1>
-        <h2 className="text-lg font-bold text-slate-700 tracking-wider">OFFICIAL HOUSE TAX PAYMENT CONFIRMATION</h2>
+        <h2 className="text-lg font-bold text-slate-700 tracking-wider uppercase">{dict.confirmations.officialConfirmation}</h2>
         <div className="flex justify-center items-center gap-2 mt-4">
-          <Badge className="bg-emerald-600 text-white border-0 px-4 py-1">GENUINE RECORD</Badge>
+          <Badge className="bg-emerald-600 text-white border-0 px-4 py-1 uppercase">{dict.status.VERIFIED}</Badge>
         </div>
       </div>
 
@@ -39,14 +42,14 @@ export function ConfirmationPrintView({ confirmation }: ConfirmationPrintViewPro
           <div className="space-y-1">
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
               <Hash className="h-3 w-3" />
-              Confirmation Number
+              {dict.confirmations.confirmationNumber}
             </p>
             <p className="font-mono text-xl font-black text-primary">{confirmation.confirmationNumber}</p>
           </div>
           <div className="space-y-1">
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
               <Calendar className="h-3 w-3" />
-              Issue Date
+              {dict.confirmations.issuedAt}
             </p>
             <p className="font-bold text-slate-800">{formatDate(confirmation.issuedAt)}</p>
           </div>
@@ -62,7 +65,7 @@ export function ConfirmationPrintView({ confirmation }: ConfirmationPrintViewPro
           <div className="space-y-1">
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5 justify-end">
               <Landmark className="h-3 w-3" />
-              Payment Method
+              {dict.payments.paymentMethod}
             </p>
             <p className="font-bold text-slate-800">{payment?.method?.replace('_', ' ')}</p>
           </div>
@@ -76,7 +79,7 @@ export function ConfirmationPrintView({ confirmation }: ConfirmationPrintViewPro
              <div className="bg-slate-100 p-1 rounded text-slate-700">
                <User className="h-3.5 w-3.5" />
              </div>
-             <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">Property Owner Information</h3>
+             <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">{dict.common.propertyOwners}</h3>
           </div>
           <div className="bg-slate-50 rounded-lg p-5 grid grid-cols-2 gap-4 border border-slate-100 shadow-sm">
             <div>
@@ -96,7 +99,7 @@ export function ConfirmationPrintView({ confirmation }: ConfirmationPrintViewPro
              <div className="bg-slate-100 p-1 rounded text-slate-700">
                <Home className="h-3.5 w-3.5" />
              </div>
-             <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">Property Details</h3>
+             <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">{dict.common.properties}</h3>
           </div>
           <div className="bg-slate-50 rounded-lg p-5 grid grid-cols-3 gap-4 border border-slate-100 shadow-sm">
             <div>
@@ -120,15 +123,15 @@ export function ConfirmationPrintView({ confirmation }: ConfirmationPrintViewPro
              <div className="bg-slate-100 p-1 rounded text-slate-700">
                <FileText className="h-3.5 w-3.5" />
              </div>
-             <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">Financial Confirmation</h3>
+             <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">{dict.payments.paymentDetails}</h3>
           </div>
           <div className="bg-slate-900 rounded-xl p-6 text-white grid grid-cols-2 gap-4 shadow-xl">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Tax Amount Confirmed</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{dict.confirmations.officialRecordText}</p>
               <p className="text-2xl font-black italic">{formatCurrency(Number(payment?.amount || 0))}</p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Bank Reference / TXID</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{dict.payments.referenceNumber}</p>
               <p className="text-lg font-mono font-bold truncate">{payment?.referenceNumber || payment?.txRef || "N/A"}</p>
             </div>
           </div>
@@ -143,14 +146,14 @@ export function ConfirmationPrintView({ confirmation }: ConfirmationPrintViewPro
            </div>
            <div className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-emerald-100 flex items-center gap-2">
              <CheckCircle2 className="h-3.5 w-3.5" />
-             OFFICIALLY VERIFIED & RECORDED
+             {dict.confirmations.officialConfirmation}
            </div>
         </div>
         <div className="text-right space-y-4">
           <div className="w-48 h-0.5 bg-slate-900 mb-2" />
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-900">Authorized Signature</p>
           <p className="text-[8px] text-slate-400 max-w-[200px]">
-            This is a computer-generated confirmation. The authenticity of this record can be verified through the system dashboard.
+            {dict.confirmations.officialRecordText}
           </p>
         </div>
       </div>

@@ -2,80 +2,89 @@ import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/api-error";
 import { catchAsync } from "../utils/catch-async";
 import { ROLE_PERMISSIONS } from "../constants/permissions";
-
-/**
- * Better Auth Session Interface (Partial)
- */
-export interface UserSession {
-  user: {
-    id: string;
-    email: string;
-    role: string;
-    name?: string;
-  };
-  session: {
-    id: string;
-    expiresAt: Date;
-  };
-}
-
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email: string;
-        role: string;
-        permissions: string[];
-      };
-    }
-  }
-}
+import { prisma } from "../config/db";
+import { UserStatus } from "@prisma/client";
 
 /**
  * Middleware to verify Better Auth session.
- * For now, this is a placeholder that documents where verification should happen.
- * It also supports a development bypass if needed.
+ * It reads the session token from cookies or authorization header.
  */
 export const authMiddleware = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    // 1. Get session from Better Auth (e.g. using auth.api.getSession({ headers: req.headers }))
-    // For now, we'll look for a dummy header or cookie in dev, or just fail with 401.
-    
-    // TODO: Final integration with Better Auth server instance
-    // const session = await auth.api.getSession({ headers: req.headers });
-    
     const isDevelopment = process.env.NODE_ENV === "development";
+    const enableDevBypass = process.env.ENABLE_DEV_AUTH_BYPASS === "true";
     const authHeader = req.headers.authorization;
-    
-    let session: UserSession | null = null;
-    
-    // Dummy bypass for development testing if enabled
-    if (isDevelopment && authHeader?.startsWith("Bearer dev-")) {
+    const cookieHeader = req.headers.cookie;
+
+    let userId: string | null = null;
+    let userRole: string | null = null;
+    let userEmail: string | null = null;
+
+    // 1. Check for Development Bypass
+    if (isDevelopment && enableDevBypass && authHeader?.startsWith("Bearer dev-")) {
       const role = authHeader.replace("Bearer dev-", "").toUpperCase();
-      session = {
-        user: {
-          id: "dev-user-id",
-          email: "dev@example.com",
-          role: role || "USER",
-          name: "Dev User",
+      userId = `dev-${role.toLowerCase()}-id`;
+      userRole = role;
+      userEmail = `dev-${role.toLowerCase()}@example.com`;
+    } 
+    else {
+      // 2. Real Session Verification
+      // Better Auth session token is usually in a cookie named 'better-auth.session-token'
+      // or passed in Authorization: Bearer <token>
+      let sessionToken: string | null = null;
+
+      if (authHeader?.startsWith("Bearer ")) {
+        sessionToken = authHeader.substring(7);
+      } else if (cookieHeader) {
+        const cookies = cookieHeader.split(";").reduce((acc, cookie) => {
+          const [name, value] = cookie.trim().split("=");
+          acc[name] = value;
+          return acc;
+        }, {} as Record<string, string>);
+        
+        sessionToken = cookies["better-auth.session-token"] || cookies["__Secure-better-auth.session-token"];
+      }
+
+      if (!sessionToken) {
+        throw new ApiError(401, "Authentication required");
+      }
+
+      // Verify session in database
+      const sessionData = await prisma.session.findUnique({
+        where: { token: sessionToken },
+        include: {
+          user: true,
         },
-        session: {
-          id: "dev-session-id",
-          expiresAt: new Date(Date.now() + 1000 * 60 * 60),
-        },
-      };
+      });
+
+      if (!sessionData) {
+        throw new ApiError(401, "Invalid or expired session");
+      }
+
+      if (sessionData.expiresAt < new Date()) {
+        throw new ApiError(401, "Session expired");
+      }
+
+      const user = sessionData.user;
+      
+      if (user.status === UserStatus.SUSPENDED || user.status === UserStatus.DISABLED) {
+        throw new ApiError(403, `Account is ${user.status.toLowerCase()}`);
+      }
+
+      userId = user.id;
+      userRole = user.role;
+      userEmail = user.email;
     }
 
-    if (!session) {
-      throw new ApiError(401, "Please authenticate");
+    if (!userId || !userRole || !userEmail) {
+      throw new ApiError(401, "Authentication failed");
     }
 
-    req.user = {
-      id: session.user.id,
-      email: session.user.email,
-      role: session.user.role,
-      permissions: ROLE_PERMISSIONS[session.user.role] || [],
+    (req as any).user = {
+      id: userId,
+      email: userEmail,
+      role: userRole,
+      permissions: ROLE_PERMISSIONS[userRole] || [],
     };
 
     next();

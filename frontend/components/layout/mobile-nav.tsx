@@ -61,24 +61,26 @@ export function MobileNav({ locale, dict, role }: { locale: string, dict: Dictio
       <SheetContent side="left" className="flex flex-col">
         <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
         <nav className="grid gap-2 text-lg font-medium">
-          <Link href={`/dashboard`} className="flex items-center gap-2 text-lg font-semibold text-primary mb-4">
+          <Link href={`/${locale}/dashboard`} className="flex items-center gap-2 text-lg font-semibold text-primary mb-4">
             <span className="text-xl font-bold">{dict?.common?.appName || "Hermata Tax"}</span>
           </Link>
           {filteredNavItems.map((item) => {
             const Icon = iconMap[item.iconKey];
-            const isActive = pathname.startsWith(item.href);
+            const localizedHref = `/${locale}${item.href}`;
+            const isActive = pathname.startsWith(localizedHref);
+            const label = (dict?.common as any)?.[item.dictKey] || item.title;
 
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={localizedHref}
                 className={cn(
                   "mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground",
                   isActive && "bg-muted text-foreground"
                 )}
               >
                 {Icon && <Icon className="h-5 w-5" />}
-                {item.title}
+                {label}
               </Link>
             );
           })}

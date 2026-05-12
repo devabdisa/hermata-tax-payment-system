@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { authMiddleware } from "../middleware/auth.middleware";
 import authRoutes from "../modules/auth/auth.routes";
 import usersRoutes from "../modules/users/users.routes";
 import propertyOwnersRoutes from "../modules/property-owners/property-owners.routes";
@@ -15,7 +16,12 @@ import settingsRoutes from "../modules/settings/settings.routes";
 
 const router = Router();
 
+// Public routes
 router.use("/auth", authRoutes);
+
+// Protected routes (require valid Better Auth session)
+router.use(authMiddleware);
+
 router.use("/users", usersRoutes);
 router.use("/property-owners", propertyOwnersRoutes);
 router.use("/properties", propertiesRoutes);

@@ -19,7 +19,13 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
-export function IssueConfirmationPageClient() {
+import { type Dictionary } from "@/lib/get-dictionary";
+
+interface IssueConfirmationPageClientProps {
+  dict: Dictionary;
+}
+
+export function IssueConfirmationPageClient({ dict }: IssueConfirmationPageClientProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -81,10 +87,10 @@ export function IssueConfirmationPageClient() {
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <Button variant="ghost" size="sm" onClick={() => router.back()} className="gap-2 -ml-2 text-muted-foreground">
-            <ArrowLeft className="h-4 w-4" /> Back
+            <ArrowLeft className="h-4 w-4" /> {dict.common?.cancel || "Back"}
           </Button>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 uppercase italic">Issue Confirmation</h1>
-          <p className="text-muted-foreground text-lg">Select a verified payment to generate an official kebele record.</p>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900 uppercase italic">{dict.confirmations.issueConfirmation}</h1>
+          <p className="text-muted-foreground text-lg">{dict.confirmations.onlyVerifiedCanReceive}</p>
         </div>
       </div>
 
@@ -94,7 +100,7 @@ export function IssueConfirmationPageClient() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
-              placeholder="Search verified payments..." 
+              placeholder={dict.common?.search || "Search..."} 
               className="pl-10 h-12 rounded-xl"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -103,13 +109,13 @@ export function IssueConfirmationPageClient() {
 
           <Card className="border-slate-100 shadow-sm rounded-2xl overflow-hidden">
             <CardHeader className="pb-3 border-b bg-slate-50/50">
-              <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-500">Verified Payments</CardTitle>
+              <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-500">{dict.payments.verifiedPayments}</CardTitle>
             </CardHeader>
             <CardContent className="p-0 max-h-[500px] overflow-y-auto">
               {isLoadingPayments ? (
                 <div className="p-8 flex justify-center"><Loader2 className="h-6 w-6 animate-spin text-slate-300" /></div>
               ) : payments.length === 0 ? (
-                <div className="p-8 text-center text-sm text-muted-foreground italic">No verified payments found</div>
+                <div className="p-8 text-center text-sm text-muted-foreground italic">{dict.common?.search || "No records found"}</div>
               ) : (
                 <div className="divide-y divide-slate-50">
                   {payments.map((p) => (
@@ -122,7 +128,7 @@ export function IssueConfirmationPageClient() {
                         <span className="font-mono font-bold text-slate-900 text-xs truncate max-w-[150px]">
                           {p.referenceNumber || p.txRef || p.id}
                         </span>
-                        <span className="text-[10px] font-black text-primary italic uppercase tracking-tighter">Verified</span>
+                        <span className="text-[10px] font-black text-primary italic uppercase tracking-tighter">{dict.status.VERIFIED}</span>
                       </div>
                       <span className="text-sm font-medium">{p.assessment?.property?.houseNumber || "Unknown House"}</span>
                       <div className="flex justify-between items-center mt-1">
@@ -147,15 +153,15 @@ export function IssueConfirmationPageClient() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                      Issue Confirmation for {selectedPayment.assessment?.property?.houseNumber}
+                      {dict.confirmations.issueConfirmation} for {selectedPayment.assessment?.property?.houseNumber}
                     </CardTitle>
-                    <CardDescription>Confirming payment for Tax Year {selectedPayment.assessment?.taxYear}</CardDescription>
+                    <CardDescription>FY {selectedPayment.assessment?.taxYear}</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-8">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
                       <div className="space-y-1">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                          <User className="h-3 w-3" /> Owner
+                          <User className="h-3 w-3" /> {dict.common.propertyOwners}
                         </p>
                         <p className="font-bold text-slate-900 text-sm truncate">{selectedPayment.assessment?.property?.owner?.fullName}</p>
                       </div>
@@ -173,7 +179,7 @@ export function IssueConfirmationPageClient() {
                       </div>
                       <div className="space-y-1">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 text-emerald-600">
-                          <FileText className="h-3 w-3" /> Amount
+                          <FileText className="h-3 w-3" /> {dict.dashboardCards.totalPayments}
                         </p>
                         <p className="font-black text-emerald-600 text-sm">{formatCurrency(Number(selectedPayment.amount))}</p>
                       </div>
@@ -182,11 +188,11 @@ export function IssueConfirmationPageClient() {
                     <Separator />
 
                     <div className="space-y-4">
-                      <h4 className="text-sm font-bold uppercase tracking-widest text-slate-900 italic">Additional Records</h4>
+                      <h4 className="text-sm font-bold uppercase tracking-widest text-slate-900 italic">{dict.confirmations.confirmationDetails}</h4>
                       <RHFTextArea 
                         name="note" 
-                        label="Official Note (Optional)" 
-                        placeholder="Add any internal notes or specific observations regarding this record..."
+                        label={dict.confirmations.revocationReason || "Note"} 
+                        placeholder="..."
                         rows={4}
                       />
                     </div>
@@ -194,7 +200,7 @@ export function IssueConfirmationPageClient() {
                   <CardFooter className="bg-slate-50/80 border-t p-6 flex flex-col md:flex-row gap-4 items-center justify-between">
                     <div className="flex items-center gap-2 text-[11px] text-muted-foreground italic">
                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                       This will generate a unique record and lock the payment for further confirmations.
+                       {dict.confirmations.officialRecordText}
                     </div>
                     <Button 
                       type="submit" 
@@ -210,7 +216,7 @@ export function IssueConfirmationPageClient() {
                       ) : (
                         <>
                           <CheckCircle2 className="mr-2 h-5 w-5" />
-                          Issue Official Confirmation
+                          {dict.confirmations.issueConfirmation}
                         </>
                       )}
                     </Button>
@@ -223,8 +229,8 @@ export function IssueConfirmationPageClient() {
                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-300 mb-4">
                   <ArrowLeft className="h-8 w-8" />
                </div>
-               <h3 className="text-lg font-bold text-slate-400 uppercase tracking-widest italic">Select a payment from the list</h3>
-               <p className="text-sm text-muted-foreground mt-2">Only verified payments are eligible for official confirmation.</p>
+               <h3 className="text-lg font-bold text-slate-400 uppercase tracking-widest italic">{dict.common?.search || "Select record"}</h3>
+               <p className="text-sm text-muted-foreground mt-2">{dict.confirmations.onlyVerifiedCanReceive}</p>
             </div>
           )}
         </div>

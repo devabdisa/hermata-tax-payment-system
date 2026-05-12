@@ -15,8 +15,13 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { type Dictionary } from "@/lib/get-dictionary";
 
-export function PaymentsPageClient() {
+interface PaymentsPageClientProps {
+  dict: Dictionary;
+}
+
+export function PaymentsPageClient({ dict }: PaymentsPageClientProps) {
   const [data, setData] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [meta, setMeta] = useState<any>(null);
@@ -51,9 +56,9 @@ export function PaymentsPageClient() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Payments</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{dict.payments.title}</h1>
           <p className="text-muted-foreground mt-1">
-            Track tax payments, verify bank receipts, and monitor online transactions.
+            {dict.payments.paymentProcessing || "Track tax payments and verify transactions."}
           </p>
         </div>
         <div className="flex gap-2">
@@ -65,49 +70,49 @@ export function PaymentsPageClient() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="gap-2">
                 <Filter className="h-4 w-4" />
-                Filter
+                {dict.common?.filter || "Filter"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Status</DropdownMenuLabel>
+              <DropdownMenuLabel>{dict.payments.paymentStatus}</DropdownMenuLabel>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === ""}
                 onCheckedChange={() => setStatusFilter("")}
               >
-                All Statuses
+                {dict.status?.ALL || "All Statuses"}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === "PENDING"}
                 onCheckedChange={() => setStatusFilter("PENDING")}
               >
-                Pending
+                {dict.status.PENDING}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === "UNDER_REVIEW"}
                 onCheckedChange={() => setStatusFilter("UNDER_REVIEW")}
               >
-                Under Review
+                {dict.status.UNDER_REVIEW}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === "VERIFIED"}
                 onCheckedChange={() => setStatusFilter("VERIFIED")}
               >
-                Verified
+                {dict.status.VERIFIED}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === "REJECTED"}
                 onCheckedChange={() => setStatusFilter("REJECTED")}
               >
-                Rejected
+                {dict.status.REJECTED}
               </DropdownMenuCheckboxItem>
 
               <DropdownMenuSeparator />
-              <DropdownMenuLabel>Method</DropdownMenuLabel>
+              <DropdownMenuLabel>{dict.payments.paymentMethod}</DropdownMenuLabel>
               <DropdownMenuCheckboxItem
                 checked={methodFilter === ""}
                 onCheckedChange={() => setMethodFilter("")}
               >
-                All Methods
+                {dict.status?.ALL || "All Methods"}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={methodFilter === "SINQEE_BANK"}
@@ -132,6 +137,7 @@ export function PaymentsPageClient() {
         isLoading={isLoading}
         onPageChange={setCurrentPage}
         onSearch={setSearch}
+        dict={dict}
       />
     </div>
   );

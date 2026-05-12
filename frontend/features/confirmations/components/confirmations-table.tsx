@@ -7,13 +7,15 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { PaymentMethodBadge } from "@/features/payments/components/payment-method-badge";
 
+import { type Dictionary } from "@/lib/get-dictionary";
+
 interface ConfirmationsTableProps {
   data: KebeleConfirmation[];
   meta: any;
   isLoading: boolean;
   onPageChange: (page: number) => void;
   onSearch: (query: string) => void;
-  dict?: any;
+  dict: Dictionary;
 }
 
 export function ConfirmationsTable({
@@ -29,7 +31,7 @@ export function ConfirmationsTable({
   const columns = [
     {
       id: "confirmationNumber",
-      header: "Confirmation #",
+      header: dict.confirmations.confirmationNumber,
       accessorKey: "confirmationNumber",
       sortable: true,
       cell: (row: KebeleConfirmation) => (
@@ -40,14 +42,14 @@ export function ConfirmationsTable({
     },
     {
       id: "status",
-      header: "Status",
+      header: dict.confirmations.confirmationStatus,
       accessorKey: "status",
       sortable: true,
       cell: (row: KebeleConfirmation) => <ConfirmationStatusBadge status={row.status} dict={dict} />,
     },
     {
       id: "property",
-      header: "Property / House #",
+      header: dict.common.properties,
       accessorKey: "payment.assessment.property.houseNumber",
       sortable: true,
       cell: (row: KebeleConfirmation) => (
@@ -61,7 +63,7 @@ export function ConfirmationsTable({
     },
     {
       id: "owner",
-      header: "Owner",
+      header: dict.common.propertyOwners || "Owner",
       accessorKey: "payment.assessment.property.owner.fullName",
       sortable: true,
       cell: (row: KebeleConfirmation) => (
@@ -70,7 +72,7 @@ export function ConfirmationsTable({
     },
     {
       id: "amount",
-      header: "Amount Paid",
+      header: dict.dashboardCards.totalPayments,
       accessorKey: "payment.amount",
       sortable: true,
       cell: (row: KebeleConfirmation) => (
@@ -81,14 +83,14 @@ export function ConfirmationsTable({
     },
     {
       id: "method",
-      header: "Method",
+      header: dict.payments.paymentMethod,
       accessorKey: "payment.method",
       sortable: false,
-      cell: (row: KebeleConfirmation) => row.payment?.method ? <PaymentMethodBadge method={row.payment.method} /> : null,
+      cell: (row: KebeleConfirmation) => row.payment?.method ? <PaymentMethodBadge method={row.payment.method} dict={dict} /> : null,
     },
     {
       id: "issuedAt",
-      header: "Issued Date",
+      header: dict.confirmations.issuedAt,
       accessorKey: "issuedAt",
       sortable: true,
       cell: (row: KebeleConfirmation) => (
@@ -110,7 +112,7 @@ export function ConfirmationsTable({
       onPageChange={onPageChange}
       onSearch={onSearch}
       onView={(row: KebeleConfirmation) => router.push(`/confirmations/${row.id}`)}
-      searchPlaceholder="Search by confirmation #, house #, or reference..."
+      searchPlaceholder={dict.common?.search || "Search..."}
       showAddButton={false}
     />
   );

@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Loader2, Globe, CheckCircle2, ShieldCheck, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { type Dictionary } from "@/lib/get-dictionary";
 
 interface ChapaPaymentCardProps {
   assessment: any;
   onInitiate: () => Promise<void>;
   isLoading?: boolean;
   isConfigured?: boolean;
+  dict: Dictionary;
 }
 
 export function ChapaPaymentCard({
@@ -17,6 +19,7 @@ export function ChapaPaymentCard({
   onInitiate,
   isLoading,
   isConfigured = true,
+  dict,
 }: ChapaPaymentCardProps) {
   return (
     <Card className="border-indigo-100 shadow-sm overflow-hidden relative group">
@@ -32,7 +35,7 @@ export function ChapaPaymentCard({
             <Globe className="h-6 w-6" />
           </div>
           <div>
-            <CardTitle className="text-xl">Chapa Online Payment</CardTitle>
+            <CardTitle className="text-xl">{dict.payments.payWithChapa}</CardTitle>
             <CardDescription>Pay instantly using Telebirr, CBEBirr, or Credit Card</CardDescription>
           </div>
         </div>
@@ -57,8 +60,7 @@ export function ChapaPaymentCard({
           <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 text-sm text-amber-800 flex gap-2">
             <ShieldCheck className="h-5 w-5 shrink-0" />
             <p>
-              Online payment is currently disabled in this environment. 
-              Please contact administration or use the bank receipt option.
+              {dict.payments.chapaNotConfigured}
             </p>
           </div>
         )}
@@ -77,7 +79,7 @@ export function ChapaPaymentCard({
           ) : (
             <>
               <Zap className="mr-2 h-5 w-5 fill-current transition-transform group-hover:scale-125" />
-              Pay Now with Chapa
+              {dict.payments.payAssessment}
             </>
           )}
         </Button>

@@ -12,12 +12,14 @@ import { Loader2, ArrowLeft, Landmark, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
+import { type Dictionary } from "@/lib/get-dictionary";
 
 interface AssessmentPaymentPageClientProps {
   assessmentId: string;
+  dict: Dictionary;
 }
 
-export function AssessmentPaymentPageClient({ assessmentId }: AssessmentPaymentPageClientProps) {
+export function AssessmentPaymentPageClient({ assessmentId, dict }: AssessmentPaymentPageClientProps) {
   const router = useRouter();
   const [assessment, setAssessment] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -84,16 +86,16 @@ export function AssessmentPaymentPageClient({ assessmentId }: AssessmentPaymentP
     return (
       <div className="space-y-6">
         <Button variant="ghost" onClick={() => router.back()} className="gap-2">
-          <ArrowLeft className="h-4 w-4" /> Back
+          <ArrowLeft className="h-4 w-4" /> {dict.common.back}
         </Button>
         <Card className="bg-emerald-50 border-emerald-100">
           <CardContent className="py-12 text-center space-y-4">
             <div className="mx-auto w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
               <Zap className="h-8 w-8 fill-current" />
             </div>
-            <h2 className="text-2xl font-bold text-emerald-900">Already Paid</h2>
+            <h2 className="text-2xl font-bold text-emerald-900">{dict.status.PAID}</h2>
             <p className="text-emerald-800">This assessment has already been fully paid.</p>
-            <Button onClick={() => router.push(`/assessments/${assessmentId}`)}>View Assessment</Button>
+            <Button onClick={() => router.push(`/assessments/${assessmentId}`)}>{dict.common.details}</Button>
           </CardContent>
         </Card>
       </div>
@@ -104,16 +106,16 @@ export function AssessmentPaymentPageClient({ assessmentId }: AssessmentPaymentP
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <Button variant="ghost" onClick={() => router.back()} className="gap-2 transition-transform hover:-translate-x-1">
-          <ArrowLeft className="h-4 w-4" /> Back
+          <ArrowLeft className="h-4 w-4" /> {dict.common.back}
         </Button>
         <div className="text-right">
-          <p className="text-sm text-muted-foreground">Total to Pay</p>
+          <p className="text-sm text-muted-foreground">{dict.dashboardCards.totalPayments}</p>
           <p className="text-3xl font-black text-slate-900">{formatCurrency(Number(assessment?.totalAmount))}</p>
         </div>
       </div>
 
       <div className="space-y-2">
-        <h1 className="text-3xl font-black tracking-tight text-slate-900 uppercase italic">Select Payment Method</h1>
+        <h1 className="text-3xl font-black tracking-tight text-slate-900 uppercase italic">{dict.payments.selectMethod}</h1>
         <p className="text-muted-foreground text-lg">Choose how you would like to pay for Tax Year {assessment?.taxYear}</p>
       </div>
 
@@ -121,11 +123,11 @@ export function AssessmentPaymentPageClient({ assessmentId }: AssessmentPaymentP
         <TabsList className="grid w-full grid-cols-2 h-16 p-1 bg-slate-100 rounded-xl mb-8">
           <TabsTrigger value="sinqee" className="rounded-lg gap-2 text-base data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-sm">
             <Landmark className="h-5 w-5" />
-            Sinqee Bank Receipt
+            {dict.payments.sinqeeBankReceipt}
           </TabsTrigger>
           <TabsTrigger value="chapa" className="rounded-lg gap-2 text-base data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm">
             <Zap className="h-5 w-5" />
-            Chapa Online
+            {dict.payments.payWithChapa}
           </TabsTrigger>
         </TabsList>
         
@@ -134,6 +136,7 @@ export function AssessmentPaymentPageClient({ assessmentId }: AssessmentPaymentP
             assessment={assessment} 
             onSubmit={handleSinqeeSubmit}
             isLoading={isSubmitting}
+            dict={dict}
           />
         </TabsContent>
         
@@ -143,6 +146,7 @@ export function AssessmentPaymentPageClient({ assessmentId }: AssessmentPaymentP
               assessment={assessment} 
               onInitiate={handleChapaInitiate}
               isLoading={isSubmitting}
+              dict={dict}
             />
           </div>
         </TabsContent>

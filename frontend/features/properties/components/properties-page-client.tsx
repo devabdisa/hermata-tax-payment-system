@@ -14,8 +14,13 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { type Dictionary } from "@/lib/get-dictionary";
 
-export function PropertiesPageClient() {
+interface PropertiesPageClientProps {
+  dict: Dictionary;
+}
+
+export function PropertiesPageClient({ dict }: PropertiesPageClientProps) {
   const router = useRouter();
   const [data, setData] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,7 +56,7 @@ export function PropertiesPageClient() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Properties</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{dict.common.properties}</h1>
           <p className="text-muted-foreground mt-1">
             Manage house records, file numbers, ownership type, land size, and approval status.
           </p>
@@ -61,7 +66,7 @@ export function PropertiesPageClient() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="gap-2">
                 <Filter className="h-4 w-4" />
-                Filter
+                {dict.common?.filter || "Filter"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
@@ -69,43 +74,43 @@ export function PropertiesPageClient() {
                 checked={statusFilter === ""}
                 onCheckedChange={() => setStatusFilter("")}
               >
-                All Statuses
+                {dict.status?.ALL || "All Statuses"}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === "DRAFT"}
                 onCheckedChange={() => setStatusFilter("DRAFT")}
               >
-                Draft
+                {dict.status.DRAFT}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === "SUBMITTED"}
                 onCheckedChange={() => setStatusFilter("SUBMITTED")}
               >
-                Submitted
+                {dict.status.SUBMITTED}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === "UNDER_REVIEW"}
                 onCheckedChange={() => setStatusFilter("UNDER_REVIEW")}
               >
-                Under Review
+                {dict.status.UNDER_REVIEW}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === "APPROVED"}
                 onCheckedChange={() => setStatusFilter("APPROVED")}
               >
-                Approved
+                {dict.status.APPROVED}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === "REJECTED"}
                 onCheckedChange={() => setStatusFilter("REJECTED")}
               >
-                Rejected
+                {dict.status.REJECTED}
               </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <Button onClick={() => router.push("/properties/new")} className="gap-2">
             <Plus className="h-4 w-4" />
-            Add Property
+            Add {dict.common.properties}
           </Button>
         </div>
       </div>
@@ -120,6 +125,7 @@ export function PropertiesPageClient() {
         onSearch={setSearch}
         onView={(p) => router.push(`/properties/${p.id}`)}
         onEdit={(p) => router.push(`/properties/${p.id}/edit`)}
+        dict={dict}
       />
     </div>
   );

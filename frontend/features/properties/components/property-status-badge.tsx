@@ -1,14 +1,15 @@
 import { Badge } from "@/components/ui/badge";
 import { PropertyStatus } from "../types";
 import { cn } from "@/lib/utils";
+import { type Dictionary } from "@/lib/get-dictionary";
 
 interface PropertyStatusBadgeProps {
   status: PropertyStatus;
   className?: string;
-  labels?: Record<string, string>;
+  dict?: Dictionary;
 }
 
-export function PropertyStatusBadge({ status, className, labels }: PropertyStatusBadgeProps) {
+export function PropertyStatusBadge({ status, className, dict }: PropertyStatusBadgeProps) {
   const variants: Record<PropertyStatus, string> = {
     DRAFT: "bg-slate-100/80 text-slate-700 hover:bg-slate-100 border-slate-200/60",
     SUBMITTED: "bg-blue-100/80 text-blue-700 hover:bg-blue-100 border-blue-200/60",
@@ -18,16 +19,7 @@ export function PropertyStatusBadge({ status, className, labels }: PropertyStatu
     ARCHIVED: "bg-gray-100/80 text-gray-700 hover:bg-gray-100 border-gray-200/60",
   };
 
-  const defaultLabels: Record<PropertyStatus, string> = {
-    DRAFT: "Draft",
-    SUBMITTED: "Submitted",
-    UNDER_REVIEW: "Under Review",
-    APPROVED: "Approved",
-    REJECTED: "Rejected",
-    ARCHIVED: "Archived",
-  };
-
-  const displayLabel = labels?.[status] || defaultLabels[status] || status;
+  const displayLabel = (dict?.status as any)?.[status] || status;
 
   return (
     <Badge variant="outline" className={cn("font-medium shadow-none", variants[status], className)}>

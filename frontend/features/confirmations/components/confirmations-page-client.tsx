@@ -17,7 +17,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
-export function ConfirmationsPageClient() {
+import { type Dictionary } from "@/lib/get-dictionary";
+
+interface ConfirmationsPageClientProps {
+  dict: Dictionary;
+}
+
+export function ConfirmationsPageClient({ dict }: ConfirmationsPageClientProps) {
   const router = useRouter();
   const [data, setData] = useState<KebeleConfirmation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,9 +57,9 @@ export function ConfirmationsPageClient() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 uppercase italic">Confirmations</h1>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900 uppercase italic">{dict.confirmations.title}</h1>
           <p className="text-muted-foreground mt-1 text-lg">
-            Manage official kebele stamps and payment confirmation records.
+            {dict.confirmations.officialRecordText}
           </p>
         </div>
         <div className="flex gap-2">
@@ -65,35 +71,35 @@ export function ConfirmationsPageClient() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="gap-2 rounded-xl border-slate-200">
                 <Filter className="h-4 w-4" />
-                Filter
+                {dict.common?.filter || "Filter"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 rounded-xl">
-              <DropdownMenuLabel>Status</DropdownMenuLabel>
+              <DropdownMenuLabel>{dict.confirmations.confirmationStatus}</DropdownMenuLabel>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === ""}
                 onCheckedChange={() => setStatusFilter("")}
               >
-                All Statuses
+                {dict.status?.ALL || "All Statuses"}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === "ISSUED"}
                 onCheckedChange={() => setStatusFilter("ISSUED")}
               >
-                Issued
+                {dict.status.ISSUED}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter === "CANCELLED"}
                 onCheckedChange={() => setStatusFilter("CANCELLED")}
               >
-                Cancelled
+                {dict.status.CANCELLED}
               </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           <Button onClick={() => router.push("/confirmations/new")} className="gap-2 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md">
             <PlusCircle className="h-4 w-4" />
-            Issue Confirmation
+            {dict.confirmations.issueConfirmation}
           </Button>
         </div>
       </div>
@@ -105,6 +111,7 @@ export function ConfirmationsPageClient() {
           isLoading={isLoading}
           onPageChange={setCurrentPage}
           onSearch={setSearch}
+          dict={dict}
         />
       </div>
     </div>

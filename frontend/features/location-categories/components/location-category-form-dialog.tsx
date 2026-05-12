@@ -14,14 +14,16 @@ import { LocationCategory } from "../types";
 import { locationCategoriesApi } from "../api";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { type Dictionary } from "@/lib/get-dictionary";
 
 interface LocationCategoryFormDialogProps {
   category?: LocationCategory;
   onSuccess: () => void;
   trigger?: React.ReactNode;
+  dict: Dictionary;
 }
 
-export function LocationCategoryFormDialog({ category, onSuccess, trigger }: LocationCategoryFormDialogProps) {
+export function LocationCategoryFormDialog({ category, onSuccess, trigger, dict }: LocationCategoryFormDialogProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -63,11 +65,11 @@ export function LocationCategoryFormDialog({ category, onSuccess, trigger }: Loc
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger || <Button>Create Category</Button>}
+        {trigger || <Button>{dict.common.submit} {dict.common.locationCategories}</Button>}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit" : "Create"} Location Category</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit" : "Create"} {dict.common.locationCategories}</DialogTitle>
           <DialogDescription>
             {isEditing 
               ? "Update the details of the location category here." 
@@ -111,11 +113,11 @@ export function LocationCategoryFormDialog({ category, onSuccess, trigger }: Loc
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+              {dict.common.cancel}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isEditing ? "Save changes" : "Create"}
+              {isEditing ? "Save changes" : dict.common.submit}
             </Button>
           </DialogFooter>
         </form>

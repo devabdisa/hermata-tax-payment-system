@@ -25,11 +25,14 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
+import { type Dictionary } from "@/lib/get-dictionary";
+
 interface PaymentVerificationFormProps {
   payment: Payment;
   onVerify: () => Promise<void>;
   onReject: (reason: string) => Promise<void>;
   isLoading?: boolean;
+  dict: Dictionary;
 }
 
 export function PaymentVerificationForm({
@@ -37,6 +40,7 @@ export function PaymentVerificationForm({
   onVerify,
   onReject,
   isLoading,
+  dict,
 }: PaymentVerificationFormProps) {
   const [isRejecting, setIsRejecting] = useState(false);
 
@@ -65,7 +69,7 @@ export function PaymentVerificationForm({
           <CardHeader>
             <CardTitle className="text-xl flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
-              Payment Details
+              {dict.payments.paymentDetails}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -80,21 +84,21 @@ export function PaymentVerificationForm({
               <div className="space-y-1">
                 <p className="text-muted-foreground flex items-center gap-1.5 uppercase text-[10px] font-bold tracking-wider">
                   <Hash className="h-3 w-3" />
-                  Reference #
+                  {dict.payments.referenceNumber}
                 </p>
                 <p className="font-semibold text-slate-900">{payment.referenceNumber || payment.txRef || "N/A"}</p>
               </div>
               <div className="space-y-1">
                 <p className="text-muted-foreground flex items-center gap-1.5 uppercase text-[10px] font-bold tracking-wider">
                   <Calendar className="h-3 w-3" />
-                  Paid Date
+                  {dict.payments.paidAt}
                 </p>
                 <p className="font-medium text-slate-900">{payment.paidAt ? formatDate(payment.paidAt) : "N/A"}</p>
               </div>
               <div className="space-y-1">
                 <p className="text-muted-foreground flex items-center gap-1.5 uppercase text-[10px] font-bold tracking-wider">
                   <User className="h-3 w-3" />
-                  Assessment Total
+                  {dict.dashboardCards.totalPayments}
                 </p>
                 <p className="font-bold text-slate-900">{formatCurrency(Number(payment.amount))}</p>
               </div>
@@ -105,7 +109,7 @@ export function PaymentVerificationForm({
             <div className="space-y-3">
               <p className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                Proof of Payment
+                {dict.payments.receiptFile}
               </p>
               {payment.receiptFileUrl ? (
                 <div className="relative group rounded-xl border border-slate-200 overflow-hidden bg-slate-50 aspect-[4/3] flex items-center justify-center">
@@ -128,7 +132,7 @@ export function PaymentVerificationForm({
                     <Button variant="secondary" size="sm" asChild>
                       <a href={`${process.env.NEXT_PUBLIC_API_URL}${payment.receiptFileUrl}`} target="_blank" rel="noopener noreferrer" className="gap-2">
                         <ExternalLink className="h-4 w-4" />
-                        Open Original
+                        {dict.payments.viewReceipt}
                       </a>
                     </Button>
                   </div>
@@ -136,7 +140,7 @@ export function PaymentVerificationForm({
               ) : (
                 <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl py-12 flex flex-col items-center justify-center text-muted-foreground italic">
                    <AlertCircle className="h-8 w-8 mb-2 opacity-20" />
-                   No receipt file uploaded
+                   {dict.payments.receiptFile || "No receipt file"}
                 </div>
               )}
             </div>
@@ -148,8 +152,8 @@ export function PaymentVerificationForm({
       <div className="space-y-6">
         <Card className="border-primary/10 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-xl">Verification Action</CardTitle>
-            <CardDescription>Review the payment details and proof before confirming</CardDescription>
+            <CardTitle className="text-xl">{dict.payments.paymentVerification}</CardTitle>
+            <CardDescription>{dict.payments.paymentProcessing}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {!isUnderReview ? (
@@ -158,12 +162,12 @@ export function PaymentVerificationForm({
                     {payment.status === 'VERIFIED' ? <CheckCircle2 className="h-6 w-6" /> : <XCircle className="h-6 w-6" />}
                  </div>
                  <div className="space-y-1">
-                   <h3 className="font-bold text-slate-900 uppercase">Verification Complete</h3>
+                   <h3 className="font-bold text-slate-900 uppercase">{dict.payments.paymentVerification}</h3>
                    <p className="text-sm text-muted-foreground">This payment has already been marked as {payment.status}</p>
                  </div>
                  {payment.status === 'REJECTED' && (
                    <div className="bg-white border border-rose-100 p-3 rounded-lg text-sm text-rose-800 text-left">
-                     <p className="font-bold mb-1 uppercase text-[10px]">Rejection Reason:</p>
+                     <p className="font-bold mb-1 uppercase text-[10px]">{dict.confirmations.cancellationReason}:</p>
                      {payment.rejectionReason}
                    </div>
                  )}
@@ -176,7 +180,7 @@ export function PaymentVerificationForm({
                   className="h-16 text-lg bg-emerald-600 hover:bg-emerald-700 shadow-md transition-all hover:scale-[1.01]"
                 >
                   {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <CheckCircle2 className="mr-2 h-6 w-6" />}
-                  Approve & Confirm Payment
+                  {dict.payments.verifyPayment}
                 </Button>
                 
                 <Button 
@@ -186,7 +190,7 @@ export function PaymentVerificationForm({
                   className="h-14 border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
                 >
                   <XCircle className="mr-2 h-5 w-5" />
-                  Reject Payment
+                  {dict.payments.rejectPayment}
                 </Button>
               </div>
             ) : (
@@ -194,8 +198,8 @@ export function PaymentVerificationForm({
                 <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
                   <RHFTextArea
                     name="rejectionReason"
-                    label="Reason for Rejection"
-                    placeholder="Provide a clear reason why this payment is being rejected..."
+                    label={dict.confirmations.cancellationReason}
+                    placeholder="..."
                     rows={4}
                     autoFocus
                   />
@@ -207,7 +211,7 @@ export function PaymentVerificationForm({
                       disabled={isLoading}
                     >
                       {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Confirm Rejection
+                      {dict.payments.rejectPayment}
                     </Button>
                     <Button 
                       type="button" 
@@ -216,7 +220,7 @@ export function PaymentVerificationForm({
                       disabled={isLoading}
                       className="h-12"
                     >
-                      Cancel
+                      {dict.common?.cancel || "Cancel"}
                     </Button>
                   </div>
                 </div>
@@ -225,7 +229,7 @@ export function PaymentVerificationForm({
           </CardContent>
           <CardFooter className="bg-slate-50/50 border-t p-4 text-[11px] text-muted-foreground flex gap-2">
             <AlertCircle className="h-3.5 w-3.5" />
-            Approving this payment will automatically mark the assessment as PAID and generate a Kebele Confirmation record.
+            {dict.confirmations.officialRecordText}
           </CardFooter>
         </Card>
 

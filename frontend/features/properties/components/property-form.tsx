@@ -15,11 +15,14 @@ import { locationCategoriesApi } from "@/features/location-categories/api";
 import { LocationCategory } from "@/features/location-categories/types";
 import { Loader2, Save, Send } from "lucide-react";
 
+import { OwnerSelector } from "@/features/property-owners/components/owner-selector";
+
 interface PropertyFormProps {
   initialData?: any;
   onSubmit: (data: CreatePropertyInput) => void;
   isLoading?: boolean;
   isUserRole?: boolean;
+  lang: string;
 }
 
 export function PropertyForm({
@@ -27,6 +30,7 @@ export function PropertyForm({
   onSubmit,
   isLoading,
   isUserRole,
+  lang,
 }: PropertyFormProps) {
   const [categories, setCategories] = useState<LocationCategory[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
@@ -137,12 +141,10 @@ export function PropertyForm({
                 isRequired={false}
               />
               {!isUserRole && (
-                <RHFTextField
-                  name="ownerId"
-                  label="Owner Profile ID"
-                  placeholder="Enter owner profile ID"
-                  isRequired={false}
-                  leftIcon="user"
+                <OwnerSelector 
+                  name="ownerId" 
+                  label="Linked Property Owner" 
+                  lang={lang}
                 />
               )}
             </CardContent>

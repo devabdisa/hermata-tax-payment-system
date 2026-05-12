@@ -1,16 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, KeyRound, Mail, Info } from "lucide-react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { signIn } from "@/lib/auth-client";
 
-export function LoginForm() {
+interface LoginFormProps {
+  dict: any;
+}
+
+export function LoginForm({ dict }: LoginFormProps) {
   const router = useRouter();
+  const { lang } = useParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -21,18 +27,23 @@ export function LoginForm() {
     setIsLoading(true);
     setErrorMessage(null);
 
-    // TODO: Integrate with Better Auth auth-client
     try {
-      // Placeholder login logic
-      if (email === "admin@example.com" && password === "password") {
-        toast.success("Signed in successfully");
-        router.push("/dashboard");
+      const { error } = await signIn.email({
+        email,
+        password,
+        callbackURL: `/${lang}/dashboard`,
+      });
+
+      if (error) {
+        setErrorMessage(error.message || dict.auth.invalidCredentials);
+        toast.error(error.message || dict.auth.invalidCredentials);
       } else {
-        setErrorMessage("Invalid credentials. Try admin@example.com / password");
-        toast.error("Invalid credentials");
+        toast.success(dict.auth.loginSuccessful);
+        router.push(`/${lang}/dashboard`);
+        router.refresh();
       }
-    } catch (err) {
-      setErrorMessage("An unexpected error occurred");
+    } catch (err: any) {
+      setErrorMessage(err.message || "An unexpected error occurred");
       toast.error("An unexpected error occurred");
     } finally {
       setIsLoading(false);
@@ -42,7 +53,7 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{dict.auth.email}</Label>
         <div className="relative">
           <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
@@ -58,7 +69,7 @@ export function LoginForm() {
         </div>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{dict.auth.password}</Label>
         <div className="relative">
           <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
@@ -80,7 +91,7 @@ export function LoginForm() {
         </Alert>
       )}
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Sign In"}
+        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : dict.auth.signIn}
       </Button>
     </form>
   );

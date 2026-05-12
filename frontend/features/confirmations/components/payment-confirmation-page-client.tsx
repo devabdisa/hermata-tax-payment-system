@@ -12,11 +12,14 @@ import { Loader2, ArrowLeft, CheckCircle2, ShieldCheck, AlertCircle, FileText } 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
 
+import { type Dictionary } from "@/lib/get-dictionary";
+
 interface PaymentConfirmationPageClientProps {
   paymentId: string;
+  dict: Dictionary;
 }
 
-export function PaymentConfirmationPageClient({ paymentId }: PaymentConfirmationPageClientProps) {
+export function PaymentConfirmationPageClient({ paymentId, dict }: PaymentConfirmationPageClientProps) {
   const router = useRouter();
   const [payment, setPayment] = useState<Payment | null>(null);
   const [confirmation, setConfirmation] = useState<KebeleConfirmation | null>(null);
@@ -72,7 +75,7 @@ export function PaymentConfirmationPageClient({ paymentId }: PaymentConfirmation
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <Button variant="ghost" size="sm" onClick={() => router.back()} className="gap-2 -ml-2 text-muted-foreground">
-        <ArrowLeft className="h-4 w-4" /> Back to Payment
+        <ArrowLeft className="h-4 w-4" /> {dict.common.back}
       </Button>
 
       {confirmation ? (
@@ -81,20 +84,20 @@ export function PaymentConfirmationPageClient({ paymentId }: PaymentConfirmation
             <div className="mx-auto w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-6">
               <ShieldCheck className="h-10 w-10" />
             </div>
-            <CardTitle className="text-3xl font-black text-emerald-900 uppercase italic">Confirmation Active</CardTitle>
+            <CardTitle className="text-3xl font-black text-emerald-900 uppercase italic">{dict.confirmations.officialConfirmation} {dict.status.ISSUED}</CardTitle>
             <CardDescription className="text-emerald-700 text-lg">
-              A kebele confirmation has already been issued for this payment.
+              {dict.confirmations.officialRecordText}
             </CardDescription>
           </CardHeader>
           <CardContent className="px-10 pb-10 space-y-6">
              <div className="bg-white p-6 rounded-2xl border border-emerald-100 flex items-center justify-between shadow-sm">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Confirmation Number</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{dict.confirmations.confirmationNumber}</p>
                   <p className="font-mono font-bold text-xl text-primary">{confirmation.confirmationNumber}</p>
                 </div>
                 <Button onClick={() => router.push(`/confirmations/${confirmation.id}`)} size="lg" className="rounded-xl shadow-md">
                    <FileText className="mr-2 h-5 w-5" />
-                   View Details
+                   {dict.common.details}
                 </Button>
              </div>
           </CardContent>
@@ -108,15 +111,15 @@ export function PaymentConfirmationPageClient({ paymentId }: PaymentConfirmation
                    <CheckCircle2 className="h-8 w-8" />
                 </div>
                 <div>
-                   <CardTitle className="text-3xl font-black text-slate-900 uppercase italic">Verify & Issue</CardTitle>
-                   <CardDescription className="text-lg">This payment is verified and ready for official confirmation.</CardDescription>
+                   <CardTitle className="text-3xl font-black text-slate-900 uppercase italic">{dict.confirmations.issueConfirmation}</CardTitle>
+                   <CardDescription className="text-lg">{dict.confirmations.onlyVerifiedCanReceive}</CardDescription>
                 </div>
              </div>
            </CardHeader>
            <CardContent className="p-10 pt-0 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                  <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Property Info</h4>
+                    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{dict.common.properties}</h4>
                     <div className="space-y-2">
                        <p className="font-bold text-slate-900">{payment.assessment?.property?.houseNumber}</p>
                        <p className="text-sm text-muted-foreground">{payment.assessment?.property?.owner?.fullName}</p>
@@ -124,7 +127,7 @@ export function PaymentConfirmationPageClient({ paymentId }: PaymentConfirmation
                     </div>
                  </div>
                  <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100 text-right">
-                    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Financial Summary</h4>
+                    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{dict.dashboardCards.totalPayments}</h4>
                     <div className="space-y-2">
                        <p className="text-2xl font-black italic text-emerald-600">{formatCurrency(Number(payment.amount))}</p>
                        <p className="text-sm text-slate-700 font-bold italic">FY {payment.assessment?.taxYear}</p>
@@ -142,14 +145,14 @@ export function PaymentConfirmationPageClient({ paymentId }: PaymentConfirmation
               </div>
            </CardContent>
            <CardFooter className="p-10 pt-0 flex justify-end gap-4">
-              <Button variant="ghost" onClick={() => router.back()} disabled={isIssuing} className="h-14 px-8 rounded-xl">Cancel</Button>
+              <Button variant="ghost" onClick={() => router.back()} disabled={isIssuing} className="h-14 px-8 rounded-xl">{dict.common.cancel}</Button>
               <Button 
                 onClick={handleIssue} 
                 disabled={isIssuing} 
                 className="h-14 px-12 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold shadow-xl transition-all hover:scale-[1.02]"
               >
                 {isIssuing ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <ShieldCheck className="h-5 w-5 mr-2" />}
-                Issue Confirmation Now
+                {dict.confirmations.issueConfirmation}
               </Button>
            </CardFooter>
         </Card>
@@ -160,7 +163,7 @@ export function PaymentConfirmationPageClient({ paymentId }: PaymentConfirmation
            </div>
            <h3 className="text-2xl font-black text-rose-900 uppercase italic mb-2">Verification Required</h3>
            <p className="text-rose-800 text-lg mb-8 max-w-md mx-auto">
-             Only payments with <span className="font-bold">VERIFIED</span> status can receive kebele confirmation. This payment is currently <span className="font-bold uppercase underline decoration-2">{payment.status}</span>.
+             Only payments with <span className="font-bold">VERIFIED</span> status can receive kebele confirmation. This payment is currently <span className="font-bold uppercase underline decoration-2">{(dict.status as any)?.[payment.status] || payment.status}</span>.
            </p>
            <Button variant="outline" onClick={() => router.push(`/payments/${paymentId}`)} className="rounded-xl border-rose-200 text-rose-700 hover:bg-rose-50">
               Return to Payment Review

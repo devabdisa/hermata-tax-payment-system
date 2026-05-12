@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import type { Dictionary } from "@/lib/get-dictionary";
 import { UserRole } from "@/config/roles";
+import { hasPermission } from "@/lib/rbac";
 
 const iconMap: Record<string, React.ElementType> = {
   "layout-dashboard": LayoutDashboard,
@@ -42,15 +43,19 @@ export function AppSidebar({ locale, dict, role }: { locale: string, dict: Dicti
   const pathname = usePathname();
 
   const filteredNavItems = NAVIGATION_ITEMS.filter(item => {
+    // 1. Check Role-based access if defined
     if (item.allowedRoles && !item.allowedRoles.includes(role)) return false;
-    // Add permission check logic here if needed later
+    
+    // 2. Check Permission-based access if defined
+    if (item.permission && !hasPermission(role, item.permission)) return false;
+    
     return true;
   });
 
   return (
     <aside className="hidden w-64 flex-col border-r bg-card md:flex">
       <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-        <Link href={`/dashboard`} className="flex items-center gap-2 font-semibold text-primary">
+        <Link href={`/${locale}/dashboard`} className="flex items-center gap-2 font-semibold text-primary">
           <span className="text-xl font-bold">{dict?.common?.appName || "Hermata Tax"}</span>
         </Link>
       </div>
@@ -58,21 +63,23 @@ export function AppSidebar({ locale, dict, role }: { locale: string, dict: Dicti
         <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
           {filteredNavItems.map((item) => {
             const Icon = iconMap[item.iconKey];
-            const isActive = pathname.startsWith(item.href);
+            const localizedHref = `/${locale}${item.href}`;
+            const isActive = pathname.startsWith(localizedHref);
+            const label = (dict?.common as any)?.[item.dictKey] || item.title;
 
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={localizedHref}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
                   isActive
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
               >
                 {Icon && <Icon className="h-4 w-4" />}
-                {(dict?.common as Record<string, string>)?.[item.iconKey === 'layout-dashboard' ? 'dashboard' : item.iconKey === 'user-square-2' ? 'propertyOwners' : item.iconKey === 'file-text' ? 'propertyDocuments' : item.iconKey === 'map-pin' ? 'locationCategories' : item.iconKey === 'percent' ? 'taxRates' : item.iconKey === 'bar-chart-3' ? 'reports' : item.iconKey === 'shield-check' ? 'auditLogs' : item.title.toLowerCase()] || item.title}
+                {label}
               </Link>
             );
           })}

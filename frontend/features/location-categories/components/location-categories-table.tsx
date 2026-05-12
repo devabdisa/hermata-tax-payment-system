@@ -17,14 +17,16 @@ import { LocationCategoryFormDialog } from "./location-category-form-dialog";
 import { locationCategoriesApi } from "../api";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { type Dictionary } from "@/lib/get-dictionary";
 
 interface LocationCategoriesTableProps {
   categories: LocationCategory[];
   isLoading: boolean;
   onRefresh: () => void;
+  dict: Dictionary;
 }
 
-export function LocationCategoriesTable({ categories, isLoading, onRefresh }: LocationCategoriesTableProps) {
+export function LocationCategoriesTable({ categories, isLoading, onRefresh, dict }: LocationCategoriesTableProps) {
   
   const handleToggleStatus = async (category: LocationCategory) => {
     try {
@@ -92,6 +94,7 @@ export function LocationCategoriesTable({ categories, isLoading, onRefresh }: Lo
                 <LocationCategoryFormDialog
                   category={category}
                   onSuccess={onRefresh}
+                  dict={dict}
                   trigger={
                     <Button variant="ghost" size="icon">
                       <Pencil className="h-4 w-4" />

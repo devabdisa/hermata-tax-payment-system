@@ -5,6 +5,7 @@ import { Property } from "../types";
 import { PropertyStatusBadge } from "./property-status-badge";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { type Dictionary } from "@/lib/get-dictionary";
 
 interface PropertiesTableProps {
   data: Property[];
@@ -17,6 +18,7 @@ interface PropertiesTableProps {
   onView: (property: Property) => void;
   onEdit: (property: Property) => void;
   onDelete?: (property: Property) => void;
+  dict: Dictionary;
 }
 
 export function PropertiesTable({
@@ -29,6 +31,7 @@ export function PropertiesTable({
   onSearch,
   onView,
   onEdit,
+  dict,
 }: PropertiesTableProps) {
   const columns = [
     {
@@ -45,7 +48,7 @@ export function PropertiesTable({
     },
     {
       id: "owner",
-      header: "Owner",
+      header: dict.common.propertyOwners || "Owner",
       accessorKey: "owner.fullName",
       cell: (row: Property) => row.owner?.fullName || "Unknown",
     },
@@ -59,7 +62,7 @@ export function PropertiesTable({
       id: "status",
       header: "Status",
       accessorKey: "status",
-      cell: (row: Property) => <PropertyStatusBadge status={row.status} />,
+      cell: (row: Property) => <PropertyStatusBadge status={row.status} dict={dict} />,
     },
     {
       id: "updatedAt",
@@ -83,7 +86,8 @@ export function PropertiesTable({
       onEdit={onEdit}
       showAddButton={false}
       showItemsPerPage={true}
-      title="Properties"
+      title={dict.common.properties}
+      searchPlaceholder={dict.common?.search || "Search..."}
     />
   );
 }

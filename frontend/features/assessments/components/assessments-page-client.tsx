@@ -9,10 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Plus, Calculator } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-
 import { Suspense } from "react";
+import { type Dictionary } from "@/lib/get-dictionary";
 
-function AssessmentsPageContent() {
+interface AssessmentsPageClientProps {
+  dict: Dictionary;
+}
+
+function AssessmentsPageContent({ dict }: AssessmentsPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [assessments, setAssessments] = useState<TaxAssessment[]>([]);
@@ -53,15 +57,15 @@ function AssessmentsPageContent() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tax Assessments</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold tracking-tight">{dict.common.assessments}</h1>
+          <p className="text-muted-foreground mt-1">
             Manage yearly house tax assessments and official calculation snapshots.
           </p>
         </div>
         <Button asChild className="gap-2">
           <Link href="/assessments/new">
             <Calculator className="h-4 w-4" />
-            Create Assessment
+            Create {dict.common.assessments}
           </Link>
         </Button>
       </div>
@@ -75,16 +79,17 @@ function AssessmentsPageContent() {
         onPageChange={setCurrentPage}
         onSearch={setSearch}
         onRefresh={fetchAssessments}
+        dict={dict}
       />
     </div>
   );
 }
 
 
-export function AssessmentsPageClient() {
+export function AssessmentsPageClient({ dict }: AssessmentsPageClientProps) {
   return (
     <Suspense fallback={<div className="flex h-[400px] items-center justify-center">Loading...</div>}>
-      <AssessmentsPageContent />
+      <AssessmentsPageContent dict={dict} />
     </Suspense>
   );
 }

@@ -6,6 +6,7 @@ import { AssessmentActions } from "./assessment-actions";
 import { BasicDataGrid } from "@/components/table/BasicDataGridTable";
 import { formatDate } from "@/lib/utils";
 import { Home, Calendar, User, Hash } from "lucide-react";
+import { type Dictionary } from "@/lib/get-dictionary";
 
 interface AssessmentsTableProps {
   data: TaxAssessment[];
@@ -16,6 +17,7 @@ interface AssessmentsTableProps {
   onPageChange: (page: number) => void;
   onSearch: (search: string) => void;
   onRefresh?: () => void;
+  dict: Dictionary;
 }
 
 export function AssessmentsTable({
@@ -27,6 +29,7 @@ export function AssessmentsTable({
   onPageChange,
   onSearch,
   onRefresh,
+  dict,
 }: AssessmentsTableProps) {
   const format = (val: number | string) => Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -78,7 +81,7 @@ export function AssessmentsTable({
       accessorKey: "status",
       cell: (row: TaxAssessment) => (
         <div className="flex flex-col gap-1">
-          <AssessmentStatusBadge status={row.status} />
+          <AssessmentStatusBadge status={row.status} dict={dict} />
           {row.dueDate && (
             <span className="text-[10px] text-muted-foreground">
               Due: {formatDate(row.dueDate)}
@@ -106,8 +109,8 @@ export function AssessmentsTable({
       currentPage={currentPage}
       onPageChange={onPageChange}
       onSearch={onSearch}
-      searchPlaceholder="Search by house number, file number or owner..."
-      title="Tax Assessments"
+      searchPlaceholder={dict.common?.search || "Search..."}
+      title={dict.common.assessments}
       showAddButton={false}
     />
   );

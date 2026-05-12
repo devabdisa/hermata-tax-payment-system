@@ -22,11 +22,14 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+import { type Dictionary } from "@/lib/get-dictionary";
+
 interface ConfirmationDetailPageClientProps {
   confirmationId: string;
+  dict: Dictionary;
 }
 
-export function ConfirmationDetailPageClient({ confirmationId }: ConfirmationDetailPageClientProps) {
+export function ConfirmationDetailPageClient({ confirmationId, dict }: ConfirmationDetailPageClientProps) {
   const router = useRouter();
   const [confirmation, setConfirmation] = useState<KebeleConfirmation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -95,16 +98,16 @@ export function ConfirmationDetailPageClient({ confirmationId }: ConfirmationDet
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
         <div className="space-y-2">
           <Button variant="ghost" size="sm" onClick={() => router.push("/confirmations")} className="gap-2 -ml-2 text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> Back to Confirmations
+            <ArrowLeft className="h-4 w-4" /> {dict.confirmations.title}
           </Button>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-black tracking-tight text-slate-900 uppercase italic">Confirmation Detail</h1>
-            <ConfirmationStatusBadge status={confirmation.status} className="h-7 px-3 text-xs" />
+            <h1 className="text-3xl font-black tracking-tight text-slate-900 uppercase italic">{dict.confirmations.confirmationDetails}</h1>
+            <ConfirmationStatusBadge status={confirmation.status} className="h-7 px-3 text-xs" dict={dict} />
           </div>
           {confirmation.status === "CANCELLED" && (
             <div className="flex items-center gap-2 text-rose-600 font-bold text-sm bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-100">
                <AlertCircle className="h-4 w-4" />
-               Revoked: {confirmation.cancellationReason}
+               {dict.confirmations.revoked}: {confirmation.cancellationReason}
             </div>
           )}
         </div>
@@ -113,36 +116,36 @@ export function ConfirmationDetailPageClient({ confirmationId }: ConfirmationDet
            {confirmation.status === "ISSUED" && (
              <Button variant="outline" className="gap-2 border-rose-200 text-rose-600 hover:bg-rose-50" onClick={() => setShowCancelDialog(true)}>
                <XCircle className="h-4 w-4" />
-               Revoke
+               {dict.common?.revoke || "Revoke"}
              </Button>
            )}
            <Button className="gap-2 bg-slate-900 hover:bg-slate-800 text-white shadow-lg" onClick={handlePrint}>
              <Printer className="h-4 w-4" />
-             Print Confirmation
+             {dict.confirmations.printConfirmation}
            </Button>
         </div>
       </div>
 
       {/* Official Print View */}
       <div className="shadow-2xl rounded-2xl overflow-hidden print:shadow-none">
-        <ConfirmationPrintView confirmation={confirmation} />
+        <ConfirmationPrintView confirmation={confirmation} dict={dict} />
       </div>
 
       {/* Revocation Dialog */}
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
         <AlertDialogContent className="sm:max-w-[425px]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-rose-600">Revoke Confirmation</AlertDialogTitle>
+            <AlertDialogTitle className="text-rose-600">{dict.confirmations.revokeConfirmation}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will mark the official confirmation as CANCELLED. This action is recorded in the audit trail but does not reverse the original payment.
+              {dict.confirmations.officialRecordText}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="reason">Reason for Revocation</Label>
+              <Label htmlFor="reason">{dict.confirmations.cancellationReason}</Label>
               <Textarea 
                 id="reason" 
-                placeholder="Explain why this confirmation is being revoked..." 
+                placeholder="..." 
                 value={cancellationReason}
                 onChange={(e) => setCancellationReason(e.target.value)}
                 className="min-h-[100px]"
@@ -150,7 +153,7 @@ export function ConfirmationDetailPageClient({ confirmationId }: ConfirmationDet
             </div>
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isActionLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isActionLoading}>{dict.common?.cancel || "Cancel"}</AlertDialogCancel>
             <AlertDialogAction 
               onClick={(e) => {
                 e.preventDefault();
@@ -160,7 +163,7 @@ export function ConfirmationDetailPageClient({ confirmationId }: ConfirmationDet
               disabled={isActionLoading}
             >
               {isActionLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <XCircle className="h-4 w-4 mr-2" />}
-              Revoke Officially
+              {dict.common?.revoke || "Revoke"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

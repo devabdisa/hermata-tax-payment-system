@@ -1,0 +1,34 @@
+import { getDictionary } from "@/lib/get-dictionary";
+import { type Locale } from "@/lib/constants";
+import { ReportsPageClient } from "@/features/reports/components/reports-page-client";
+import { getServerSession } from "@/lib/auth-helper";
+import { hasPermission } from "@/lib/rbac";
+import { PERMISSIONS } from "@/config/permissions";
+import { AccessDenied } from "@/components/auth/access-denied";
+
+export default async function ReportsPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params;
+  const dict = await getDictionary(lang as Locale);
+
+  const session = await getServerSession();
+  const role = (session?.user as any)?.role || "USER";
+
+  if (!hasPermission(role, PERMISSIONS.REPORTS_VIEW)) {
+    return <AccessDenied dict={dict} lang={lang} />;
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-4xl font-black tracking-tight text-slate-900 uppercase italic">
+          {dict.common.reports}
+        </h1>
+        <p className="text-slate-500 font-medium max-w-2xl">
+          Comprehensive analytics and operational monitoring for the kebele house tax system.
+        </p>
+      </div>
+
+      <ReportsPageClient dict={dict} lang={lang} />
+    </div>
+  );
+}

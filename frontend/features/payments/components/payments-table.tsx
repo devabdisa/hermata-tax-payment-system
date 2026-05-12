@@ -8,13 +8,15 @@ import { formatCurrency } from "@/lib/utils";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 
+import { type Dictionary } from "@/lib/get-dictionary";
+
 interface PaymentsTableProps {
   data: Payment[];
   meta: any;
   isLoading: boolean;
   onPageChange: (page: number) => void;
   onSearch: (query: string) => void;
-  dict?: any;
+  dict: Dictionary;
 }
 
 export function PaymentsTable({
@@ -41,7 +43,7 @@ export function PaymentsTable({
     },
     {
       id: "owner",
-      header: "Payer/Owner",
+      header: dict.common.propertyOwners || "Payer/Owner",
       accessorKey: "assessment.property.owner.fullName",
       sortable: true,
       cell: (row: Payment) => (
@@ -53,7 +55,7 @@ export function PaymentsTable({
     },
     {
       id: "amount",
-      header: "Amount",
+      header: dict.dashboardCards.totalPayments || "Amount",
       accessorKey: "amount",
       sortable: true,
       cell: (row: Payment) => (
@@ -64,21 +66,21 @@ export function PaymentsTable({
     },
     {
       id: "method",
-      header: "Method",
+      header: dict.payments.paymentMethod,
       accessorKey: "method",
       sortable: true,
-      cell: (row: Payment) => <PaymentMethodBadge method={row.method} />,
+      cell: (row: Payment) => <PaymentMethodBadge method={row.method} dict={dict} />,
     },
     {
       id: "status",
-      header: "Status",
+      header: dict.payments.paymentStatus,
       accessorKey: "status",
       sortable: true,
       cell: (row: Payment) => <PaymentStatusBadge status={row.status} dict={dict} />,
     },
     {
       id: "paidAt",
-      header: "Paid Date",
+      header: dict.payments.paidAt,
       accessorKey: "paidAt",
       sortable: true,
       cell: (row: Payment) => (
@@ -100,7 +102,7 @@ export function PaymentsTable({
       onPageChange={onPageChange}
       onSearch={onSearch}
       onView={(row: Payment) => router.push(`/payments/${row.id}`)}
-      searchPlaceholder="Search by reference, house #, or owner..."
+      searchPlaceholder={dict.common?.search || "Search..."}
       showAddButton={false}
     />
   );
