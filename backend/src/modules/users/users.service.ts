@@ -1,6 +1,5 @@
-import { PrismaClient, UserRole, UserStatus } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { UserRole, UserStatus } from "@prisma/client";
+import { prisma } from "../../config/db";
 
 export class UsersService {
   static async listUsers(filters: { role?: UserRole; status?: UserStatus; search?: string }) {

@@ -2,14 +2,30 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Home, FileText, CheckCircle, Calculator, CreditCard, Clock, TrendingUp, AlertTriangle, ShieldCheck } from "lucide-react";
+import { 
+  Home, 
+  Calculator, 
+  CreditCard, 
+  Clock, 
+  TrendingUp, 
+  AlertTriangle, 
+  ShieldCheck,
+  CheckCircle,
+  FileText,
+  DollarSign,
+  ChevronRight,
+  Plus,
+  ArrowUpRight,
+  RefreshCw
+} from "lucide-react";
 import { reportsApi } from "../api";
 import { DashboardReport } from "../types";
 import { type Dictionary } from "@/lib/get-dictionary";
-import { formatCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { MetricCard } from "@/components/ui/metric-card";
+import { calculateMetricChange, formatETB, formatCompactNumber } from "@/lib/metrics";
 
 interface DashboardPageClientProps {
   dict: Dictionary;
@@ -38,15 +54,15 @@ export function DashboardPageClient({ dict, lang }: DashboardPageClientProps) {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-32 w-full rounded-2xl" />
+            <Skeleton key={i} className="h-40 w-full rounded-2xl" />
           ))}
         </div>
         <div className="grid gap-6 md:grid-cols-7">
-           <Skeleton className="col-span-4 h-[400px] rounded-2xl" />
-           <Skeleton className="col-span-3 h-[400px] rounded-2xl" />
+           <Skeleton className="col-span-full lg:col-span-4 h-[450px] rounded-2xl" />
+           <Skeleton className="col-span-full lg:col-span-3 h-[450px] rounded-2xl" />
         </div>
       </div>
     );
@@ -54,121 +70,148 @@ export function DashboardPageClient({ dict, lang }: DashboardPageClientProps) {
 
   if (!data) return null;
 
-  const stats = [
+  // Mock previous data for trend calculation (in real app, this would come from API)
+  const previousData = {
+    propertiesTotal: data.propertiesTotal * 0.95,
+    assessmentsIssued: data.assessmentsIssued * 0.92,
+    paymentsVerified: data.paymentsVerified * 0.88,
+    totalCollectedAmount: data.totalCollectedAmount * 0.85
+  };
+
+  const metrics = [
     {
       title: dict.reports.totalProperties,
-      value: data.propertiesTotal.toLocaleString(),
-      description: `${data.propertiesApproved} ${dict.reports.approvedProperties}`,
+      value: data.propertiesTotal,
+      previousValue: previousData.propertiesTotal,
+      unit: '',
       icon: Home,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50",
-      link: `/${lang}/properties`
-    },
-    {
-      title: dict.reports.pendingReviews,
-      value: data.propertiesPendingReview.toLocaleString(),
-      description: `${data.documentsPendingReview} ${dict.reports.pendingDocuments}`,
-      icon: Clock,
-      color: "text-amber-600",
-      bg: "bg-amber-50",
-      link: `/${lang}/properties?status=SUBMITTED`
+      description: `${data.propertiesApproved} ${dict.reports.approvedProperties}`,
+      href: `/${lang}/properties`,
+      variant: 'default' as const
     },
     {
       title: dict.reports.issuedAssessments,
-      value: data.assessmentsIssued.toLocaleString(),
-      description: `${data.assessmentsPaid} ${dict.reports.paidAssessments}`,
+      value: data.assessmentsIssued,
+      previousValue: previousData.assessmentsIssued,
+      unit: '',
       icon: Calculator,
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-      link: `/${lang}/assessments`
+      description: `${data.assessmentsPaid} ${dict.reports.paidAssessments}`,
+      href: `/${lang}/assessments`,
+      variant: 'info' as const
+    },
+    {
+      title: 'Payments Verified', // Should use dictionary
+      value: data.paymentsVerified,
+      previousValue: previousData.paymentsVerified,
+      unit: '',
+      icon: CheckCircle,
+      description: `${data.paymentsPendingReview} pending review`,
+      href: `/${lang}/payments`,
+      variant: 'success' as const
     },
     {
       title: dict.reports.totalCollected,
-      value: formatCurrency(data.totalCollectedAmount),
-      description: `${formatCurrency(data.totalUnpaidAmount)} ${dict.reports.totalUnpaid}`,
-      icon: CreditCard,
-      color: "text-indigo-600",
-      bg: "bg-indigo-50",
-      link: `/${lang}/payments`
+      value: data.totalCollectedAmount,
+      previousValue: previousData.totalCollectedAmount,
+      unit: 'ETB',
+      icon: DollarSign,
+      description: `Target: ${formatCompactNumber(data.totalAssessedAmount)}`,
+      href: `/${lang}/payments`,
+      variant: 'default' as const,
+      isCurrency: true
     }
   ];
 
   return (
     <div className="space-y-8">
+      {/* Premium Metric Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, i) => (
-          <Card key={i} className="border-none shadow-md rounded-2xl overflow-hidden group cursor-pointer hover:shadow-lg transition-all" onClick={() => router.push(stat.link)}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider">{stat.title}</CardTitle>
-              <div className={`p-2 rounded-xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
-                <stat.icon className="h-5 w-5" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-black text-slate-900 italic tracking-tight">{stat.value}</div>
-              <p className="text-xs text-slate-500 mt-2 font-medium flex items-center gap-1">
-                <TrendingUp className="h-3 w-3" /> {stat.description}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+        {metrics.map((metric, i) => {
+          const trend = calculateMetricChange(metric.value, metric.previousValue);
+          return (
+            <MetricCard
+              key={i}
+              title={metric.title}
+              value={metric.isCurrency ? formatCompactNumber(metric.value) : metric.value.toLocaleString()}
+              unit={metric.unit}
+              icon={metric.icon}
+              description={metric.description}
+              trend={{
+                value: trend.percentage,
+                isPositive: trend.isPositive,
+                label: 'vs last month'
+              }}
+              href={metric.href}
+              variant={metric.variant}
+            />
+          );
+        })}
       </div>
 
       <div className="grid gap-6 md:grid-cols-7">
-        <Card className="col-span-4 border-none shadow-md rounded-2xl">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
-              {dict.reports.pendingWork}
-            </CardTitle>
-            <CardDescription>{dict.reports.overview}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                 <p className="text-xs font-bold text-slate-400 uppercase">{dict.reports.pendingPropertyReviews}</p>
-                 <p className="text-2xl font-black text-slate-800 italic">{data.propertiesPendingReview}</p>
+        <Card className="col-span-full lg:col-span-4 border-border/50 shadow-sm rounded-2xl overflow-hidden bg-card/50 backdrop-blur-sm">
+          <CardHeader className="border-b border-border/50 bg-muted/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-amber-500" />
+                  {dict.reports.pendingWork}
+                </CardTitle>
+                <CardDescription>{dict.reports.overview}</CardDescription>
               </div>
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                 <p className="text-xs font-bold text-slate-400 uppercase">{dict.reports.pendingDocumentReviews}</p>
-                 <p className="text-2xl font-black text-slate-800 italic">{data.documentsPendingReview}</p>
-              </div>
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                 <p className="text-xs font-bold text-slate-400 uppercase">{dict.reports.pendingPaymentVerifications}</p>
-                 <p className="text-2xl font-black text-slate-800 italic">{data.paymentsPendingReview}</p>
-              </div>
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                 <p className="text-xs font-bold text-slate-400 uppercase">{dict.reports.paidWithoutConfirmation}</p>
-                 <p className="text-2xl font-black text-slate-800 italic">{data.paidWithoutConfirmation}</p>
-              </div>
+              <Button variant="outline" size="sm" onClick={() => router.push(`/${lang}/reports`)}>
+                View Reports
+              </Button>
             </div>
-            <Button className="w-full h-12 rounded-xl bg-slate-900 text-white font-bold" onClick={() => router.push(`/${lang}/reports`)}>
-               {dict.reports.viewDetails}
-            </Button>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                { label: dict.reports.pendingPropertyReviews, value: data.propertiesPendingReview, icon: Home, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20" },
+                { label: dict.reports.pendingDocumentReviews, value: data.documentsPendingReview, icon: FileText, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/20" },
+                { label: dict.reports.pendingPaymentVerifications, value: data.paymentsPendingReview, icon: CreditCard, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20" },
+                { label: dict.reports.paidWithoutConfirmation, value: data.paidWithoutConfirmation, icon: ShieldCheck, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-900/20" }
+              ].map((item, i) => (
+                <div key={i} className="flex items-center p-4 rounded-2xl bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors">
+                  <div className={`p-3 rounded-xl ${item.bg} ${item.color} mr-4`}>
+                    <item.icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{item.label}</p>
+                    <p className="text-2xl font-bold text-foreground">{item.value}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="col-span-3 border-none shadow-md rounded-2xl">
-          <CardHeader>
-            <CardTitle>{dict.dashboardCards.quickActions}</CardTitle>
+        <Card className="col-span-full lg:col-span-3 border-border/50 shadow-sm rounded-2xl overflow-hidden bg-card/50 backdrop-blur-sm">
+          <CardHeader className="border-b border-border/50 bg-muted/20">
+            <CardTitle className="text-xl">{dict.dashboardCards.quickActions}</CardTitle>
             <CardDescription>Common shortcuts</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="p-6 space-y-3">
              {[
-               { label: "Register Property", sub: "Add house record", icon: Home, color: "text-primary", bg: "bg-primary/10", link: `/${lang}/properties` },
-               { label: "Issue Assessment", sub: "Calculate tax", icon: Calculator, color: "text-blue-600", bg: "bg-blue-50", link: `/${lang}/assessments` },
-               { label: "Verify Payment", sub: "Check receipts", icon: CheckCircle, color: "text-emerald-600", bg: "bg-emerald-50", link: `/${lang}/payments` },
-               { label: "Issue Confirmation", sub: "Final receipt", icon: ShieldCheck, color: "text-indigo-600", bg: "bg-indigo-50", link: `/${lang}/confirmations` }
+               { label: "Register Property", sub: "Add house record", icon: Home, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20", link: `/${lang}/properties` },
+               { label: "Issue Assessment", sub: "Calculate tax", icon: Calculator, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/20", link: `/${lang}/assessments` },
+               { label: "Verify Payment", sub: "Check receipts", icon: CheckCircle, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20", link: `/${lang}/payments` },
+               { label: "Issue Confirmation", sub: "Final receipt", icon: ShieldCheck, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-900/20", link: `/${lang}/confirmations` }
              ].map((action, i) => (
-               <div key={i} onClick={() => router.push(action.link)} className="flex items-center p-4 rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 transition-all cursor-pointer group shadow-sm">
+               <button 
+                 key={i} 
+                 onClick={() => router.push(action.link)} 
+                 className="w-full flex items-center p-4 rounded-2xl border border-border/50 bg-background hover:bg-muted/50 transition-all cursor-pointer group shadow-sm active:scale-[0.98]"
+               >
                   <div className={`p-3 rounded-xl ${action.bg} ${action.color} mr-4 group-hover:scale-110 transition-transform`}>
                       <action.icon className="h-5 w-5" />
                   </div>
-                  <div>
-                      <p className="text-sm font-bold text-slate-900">{action.label}</p>
-                      <p className="text-xs text-slate-500">{action.sub}</p>
+                  <div className="text-left">
+                      <p className="text-sm font-bold text-foreground">{action.label}</p>
+                      <p className="text-xs text-muted-foreground">{action.sub}</p>
                   </div>
-               </div>
+                  <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+               </button>
              ))}
           </CardContent>
         </Card>

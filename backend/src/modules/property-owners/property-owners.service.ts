@@ -1,6 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../../config/db";
 
 export class PropertyOwnersService {
   static async listOwners(filters: { search?: string }) {

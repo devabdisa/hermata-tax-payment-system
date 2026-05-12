@@ -1,7 +1,6 @@
-import { PrismaClient, PropertyStatus, DocumentStatus, AssessmentStatus, PaymentStatus, ConfirmationStatus } from '@prisma/client';
+import { PropertyStatus, DocumentStatus, AssessmentStatus, PaymentStatus, ConfirmationStatus } from '@prisma/client';
 import { DashboardReport, CollectionSummary, UnpaidReport, PendingWorkReport } from './reports.types';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../config/db';
 
 export const reportsService = {
   getDashboardReport: async (): Promise<DashboardReport> => {

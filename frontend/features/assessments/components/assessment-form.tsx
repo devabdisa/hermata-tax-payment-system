@@ -3,14 +3,15 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createAssessmentSchema, updateAssessmentSchema } from "../schema";
-import { CreateAssessmentInput, UpdateAssessmentInput, TaxAssessment } from "../types";
+import { TaxAssessment } from "../types";
 import { Button } from "@/components/ui/button";
 import FormProvider from "@/components/forms/FormProvider";
 import RHFTextField from "@/components/forms/RHFTextField";
 import RHFTextArea from "@/components/forms/RHFTextArea";
 import RHFSelect from "@/components/forms/RHFSelect";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, Calculator, Save, Send, ArrowLeft, Info } from "lucide-react";
+import { SectionCard } from "@/components/ui/section-card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, Calculator, Save, Info, AlertTriangle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { propertiesApi } from "@/features/properties/api";
 import { Property } from "@/features/properties/types";
@@ -59,13 +60,12 @@ export function AssessmentForm({
     },
   });
 
-  const { watch, setValue, handleSubmit } = methods;
+  const { watch, handleSubmit } = methods;
   const propertyId = watch("propertyId");
   const taxYear = watch("taxYear");
   const penaltyAmount = watch("penaltyAmount") || 0;
   const previousBalance = watch("previousBalance") || 0;
 
-  // Fetch approved properties for selection
   useEffect(() => {
     if (!isEdit) {
       propertiesApi.getProperties({ status: "APPROVED", limit: 100 }).then((res) => {
@@ -76,7 +76,6 @@ export function AssessmentForm({
     }
   }, [isEdit, initialData]);
 
-  // Fetch property details and tax rate when selection or year changes
   useEffect(() => {
     if (propertyId && !isEdit) {
       const prop = properties.find(p => p.id === propertyId);
@@ -134,16 +133,13 @@ export function AssessmentForm({
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
         <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Assessment Details</CardTitle>
-              <CardDescription>
-                {isEdit ? "Update adjustments for this draft assessment." : "Select a property and year to calculate tax."}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          <SectionCard 
+            title="Assessment Configuration" 
+            description={isEdit ? "Update adjustments for this draft assessment." : "Select a property and year to calculate tax."}
+          >
+            <div className="space-y-6">
               {!isEdit ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <RHFSelect
@@ -159,19 +155,19 @@ export function AssessmentForm({
                   />
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-muted/30 p-4 rounded-lg border border-border/50">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-muted/30 p-4 rounded-2xl border border-border/50">
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Property</p>
-                    <p className="font-semibold">House #{selectedProperty?.houseNumber}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Property</p>
+                    <p className="font-semibold text-foreground">House #{selectedProperty?.houseNumber}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Tax Year</p>
-                    <p className="font-semibold">{initialData?.taxYear}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Tax Year</p>
+                    <p className="font-semibold text-foreground">{initialData?.taxYear}</p>
                   </div>
                 </div>
               )}
 
-              <Separator />
+              <Separator className="bg-border/50" />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <RHFTextField
@@ -179,14 +175,12 @@ export function AssessmentForm({
                   label="Penalty Amount (Optional)"
                   type="number"
                   placeholder="0.00"
-                  leftIcon="hash"
                 />
                 <RHFTextField
                   name="previousBalance"
                   label="Previous Balance (Optional)"
                   type="number"
                   placeholder="0.00"
-                  leftIcon="hash"
                 />
                 <RHFTextField
                   name="dueDate"
@@ -203,26 +197,24 @@ export function AssessmentForm({
               />
 
               {!isEdit && (
-                <div className="flex items-center gap-6 pt-4">
-                  <div className="flex items-center gap-2">
-                    <input 
-                      type="checkbox" 
-                      id="issueNow" 
-                      {...methods.register("issueNow")} 
-                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                    />
-                    <label htmlFor="issueNow" className="text-sm font-medium">Issue Immediately</label>
-                  </div>
+                <div className="flex items-center gap-2 pt-2">
+                  <input 
+                    type="checkbox" 
+                    id="issueNow" 
+                    {...methods.register("issueNow")} 
+                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                  />
+                  <label htmlFor="issueNow" className="text-sm font-medium text-foreground">Issue Immediately</label>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </SectionCard>
 
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={onCancel}>
+          <div className="flex justify-end gap-3 pt-4 border-t border-border/50">
+            <Button type="button" variant="outline" onClick={onCancel} className="h-12 px-6 rounded-xl">
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading || (!!selectedProperty && !activeTaxRate && !isLoadingRates)}>
+            <Button type="submit" disabled={isLoading || (!!selectedProperty && !activeTaxRate && !isLoadingRates)} className="h-12 px-8 rounded-xl shadow-md">
               {isLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : isEdit ? (
@@ -237,25 +229,25 @@ export function AssessmentForm({
 
         <div className="lg:col-span-1 space-y-6">
           {selectedProperty && (
-            <Card className="border-primary/10 bg-primary/5">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Info className="h-4 w-4 text-primary" />
-                  Property Context
+            <Card className="border-primary/10 bg-primary/5 rounded-2xl overflow-hidden shadow-sm">
+              <CardHeader className="pb-3 border-b border-primary/5">
+                <CardTitle className="text-sm font-bold flex items-center gap-2 text-primary">
+                  <Info className="h-4 w-4" />
+                  PROPERTY CONTEXT
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-xs space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Owner:</span>
-                  <span className="font-medium text-right">{selectedProperty.owner?.fullName}</span>
+              <CardContent className="text-xs space-y-3 p-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground uppercase tracking-tighter">Owner</span>
+                  <span className="font-bold text-foreground text-right">{selectedProperty.owner?.fullName}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Land Size:</span>
-                  <span className="font-medium">{selectedProperty.landSizeKare} kare</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground uppercase tracking-tighter">Land Size</span>
+                  <span className="font-bold text-foreground">{selectedProperty.landSizeKare} kare</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Category:</span>
-                  <span className="font-medium">{selectedProperty.locationCategory?.name}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground uppercase tracking-tighter">Category</span>
+                  <span className="font-bold text-foreground">{selectedProperty.locationCategory?.name}</span>
                 </div>
               </CardContent>
             </Card>
@@ -275,9 +267,10 @@ export function AssessmentForm({
           )}
 
           {!activeTaxRate && selectedProperty && !isLoadingRates && (
-            <Alert variant="destructive">
-              <AlertTitle>Rate Not Found</AlertTitle>
-              <AlertDescription className="text-xs">
+            <Alert variant="destructive" className="rounded-2xl shadow-sm border-rose-200 bg-rose-50 dark:bg-rose-950/20">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle className="font-bold">Rate Not Found</AlertTitle>
+              <AlertDescription className="text-xs font-medium">
                 No active tax rate found for category "{selectedProperty.locationCategory?.name}" in year {isEdit ? initialData?.taxYear : taxYear}. 
                 Please create a tax rate first.
               </AlertDescription>
@@ -285,7 +278,7 @@ export function AssessmentForm({
           )}
 
           {isLoadingRates && (
-            <div className="flex justify-center p-8 bg-muted/20 rounded-lg animate-pulse">
+            <div className="flex justify-center p-8 bg-muted/20 rounded-2xl animate-pulse border border-border/50">
               <Loader2 className="h-6 w-6 animate-spin text-primary/40" />
             </div>
           )}

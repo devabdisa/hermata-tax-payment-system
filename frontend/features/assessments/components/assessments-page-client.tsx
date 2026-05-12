@@ -5,12 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { assessmentsApi } from "../api";
 import { TaxAssessment, AssessmentStatus } from "../types";
 import { AssessmentsTable } from "./assessments-table";
-import { Button } from "@/components/ui/button";
-import { Plus, Calculator } from "lucide-react";
-import Link from "next/link";
+import { Calculator, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Suspense } from "react";
 import { type Dictionary } from "@/lib/get-dictionary";
+import { PageShell } from "@/components/ui/page-shell";
+import { PageHeader } from "@/components/ui/page-header";
 
 interface AssessmentsPageClientProps {
   dict: Dictionary;
@@ -54,21 +54,24 @@ function AssessmentsPageContent({ dict }: AssessmentsPageClientProps) {
   }, [currentPage, search, status, searchParams]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{dict.common.assessments}</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage yearly house tax assessments and official calculation snapshots.
-          </p>
-        </div>
-        <Button asChild className="gap-2">
-          <Link href="/assessments/new">
-            <Calculator className="h-4 w-4" />
-            Create {dict.common.assessments}
-          </Link>
-        </Button>
-      </div>
+    <PageShell>
+      <PageHeader
+        title={dict.common.assessments}
+        description="Manage yearly house tax assessments and official calculation snapshots."
+        icon={Calculator}
+        breadcrumbs={[
+          { label: dict.common.dashboard, href: "/dashboard" },
+          { label: dict.common.assessments, href: "/assessments" }
+        ]}
+        actions={[
+          {
+            label: `Create ${dict.common.assessments}`,
+            onClick: () => router.push("/assessments/new"),
+            icon: Plus,
+            variant: "default"
+          }
+        ]}
+      />
 
       <AssessmentsTable
         data={assessments}
@@ -81,10 +84,9 @@ function AssessmentsPageContent({ dict }: AssessmentsPageClientProps) {
         onRefresh={fetchAssessments}
         dict={dict}
       />
-    </div>
+    </PageShell>
   );
 }
-
 
 export function AssessmentsPageClient({ dict }: AssessmentsPageClientProps) {
   return (

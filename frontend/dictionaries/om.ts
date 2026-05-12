@@ -61,7 +61,11 @@ export const om = {
     "cancel": "Haqu",
     "revoke": "Haqi",
     "back": "Deebi'i",
-    "details": "Bal'ina"
+    "details": "Bal'ina",
+    "navGroups.overview": "Waliigala",
+    "navGroups.management": "Bulchiinsa",
+    "navGroups.revenue": "Galii",
+    "navGroups.administration": "Sirna Bulchiinsaa"
   },
   "status": {
     "ALL": "Hunda",

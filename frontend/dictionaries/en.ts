@@ -61,7 +61,11 @@ export const en = {
     "cancel": "Cancel",
     "revoke": "Revoke",
     "back": "Back",
-    "details": "Details"
+    "details": "Details",
+    "navGroups.overview": "Overview",
+    "navGroups.management": "Management",
+    "navGroups.revenue": "Revenue",
+    "navGroups.administration": "Administration"
   },
   "status": {
     "ALL": "All",
@@ -185,5 +189,23 @@ export const en = {
     "propertiesByStatus": "Properties by Status",
     "assessmentsByStatus": "Assessments by Status",
     "paymentsByStatus": "Payments by Status"
+  },
+  "errors": {
+    "somethingWentWrong": "Something went wrong",
+    "unexpectedError": "An unexpected error occurred. Please try again.",
+    "failedToLoad": "Failed to load data",
+    "failedToLoadDescription": "We couldn't load the requested data. Please try again.",
+    "networkError": "Network Error",
+    "networkErrorDescription": "Unable to connect to the server. Please check your internet connection.",
+    "noInternetConnection": "No Internet Connection",
+    "noInternetDescription": "Please check your network settings and try again.",
+    "validationFailed": "Validation Failed",
+    "validationFailedDescription": "Please check your input and try again.",
+    "accessDenied": "Access Denied",
+    "accessDeniedDescription": "You don't have permission to access this resource.",
+    "tryAgain": "Try Again",
+    "reload": "Reload",
+    "reloadPage": "Reload Page",
+    "technicalDetails": "Technical Details"
   }
 };

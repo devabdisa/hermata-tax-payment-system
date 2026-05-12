@@ -61,7 +61,11 @@ export const am = {
     "cancel": "ሰርዝ",
     "revoke": "አንሳ",
     "back": "ተመለስ",
-    "details": "ዝርዝሮች"
+    "details": "ዝርዝሮች",
+    "navGroups.overview": "አጠቃላይ እይታ",
+    "navGroups.management": "አስተዳደር",
+    "navGroups.revenue": "ገቢ",
+    "navGroups.administration": "አስተዳደር ስርዓት"
   },
   "status": {
     "ALL": "ሁሉም",
@@ -185,5 +189,23 @@ export const am = {
     "propertiesByStatus": "ንብረቶች በሁኔታ",
     "assessmentsByStatus": "ግምገማዎች በሁኔታ",
     "paymentsByStatus": "ክፍያዎች በሁኔታ"
+  },
+  "errors": {
+    "somethingWentWrong": "የሆነ ችግር ተፈጥሯል",
+    "unexpectedError": "ያልተጠበቀ ስህተት ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።",
+    "failedToLoad": "መረጃ መጫን አልተቻለም",
+    "failedToLoadDescription": "የተጠየቀውን መረጃ መጫን አልቻልንም። እባክዎ እንደገና ይሞክሩ።",
+    "networkError": "የኔትወርክ ስህተት",
+    "networkErrorDescription": "ከአገልጋዩ ጋር መገናኘት አልተቻለም። እባክዎ የበይነመረብ ግንኙነትዎን ያረጋግጡ።",
+    "noInternetConnection": "የበይነመረብ ግንኙነት የለም",
+    "noInternetDescription": "እባክዎ የኔትወርክ ቅንብሮችዎን ያረጋግጡ እና እንደገና ይሞክሩ።",
+    "validationFailed": "ማረጋገጫ አልተሳካም",
+    "validationFailedDescription": "እባክዎ ግብዓትዎን ያረጋግጡ እና እንደገና ይሞክሩ።",
+    "accessDenied": "መዳረሻ ተከልክሏል",
+    "accessDeniedDescription": "ይህንን ግብዓት ለማግኘት ፈቃድ የለዎትም።",
+    "tryAgain": "እንደገና ይሞክሩ",
+    "reload": "እንደገና ይጫኑ",
+    "reloadPage": "ገጹን እንደገና ይጫኑ",
+    "technicalDetails": "ቴክኒካዊ ዝርዝሮች"
   }
 };

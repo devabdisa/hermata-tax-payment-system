@@ -5,6 +5,7 @@ import { getDictionary } from "@/lib/get-dictionary";
 import { type Locale } from "@/lib/constants";
 import { getServerSession } from "@/lib/auth-helper";
 import { redirect } from "next/navigation";
+import ErrorBoundary from "@/components/feedback/error-boundary";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -40,13 +41,15 @@ export default async function DashboardLayout({
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background transition-colors duration-300">
       <AppSidebar locale={lang} role={user.role as any} dict={dict} />
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <AppHeader user={user} locale={lang} dict={dict} />
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
-          <div className="max-w-7xl mx-auto">
-            {children}
+        <main className="flex-1 overflow-y-auto bg-muted/10">
+          <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto animate-in-fade">
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
           </div>
         </main>
       </div>

@@ -1,11 +1,12 @@
 "use client";
 
+import { DataTable } from "@/components/table/data-table";
 import { TaxAssessment } from "../types";
-import { AssessmentStatusBadge } from "./assessment-status-badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { AssessmentActions } from "./assessment-actions";
-import { BasicDataGrid } from "@/components/table/BasicDataGridTable";
 import { formatDate } from "@/lib/utils";
-import { Home, Calendar, User, Hash } from "lucide-react";
+import { Home, Calendar, User, Calculator } from "lucide-react";
+import { ColumnDef } from "@tanstack/react-table";
 import { type Dictionary } from "@/lib/get-dictionary";
 
 interface AssessmentsTableProps {
@@ -23,95 +24,93 @@ interface AssessmentsTableProps {
 export function AssessmentsTable({
   data,
   isLoading,
-  totalItems,
-  totalPages,
-  currentPage,
-  onPageChange,
-  onSearch,
   onRefresh,
   dict,
 }: AssessmentsTableProps) {
   const format = (val: number | string) => Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  const columns = [
+  const columns: ColumnDef<TaxAssessment>[] = [
     {
+      id: "taxYear",
       header: "Assessment Info",
       accessorKey: "taxYear",
-      cell: (row: TaxAssessment) => (
+      cell: ({ row }) => (
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1.5 font-bold text-foreground">
             <Calendar className="h-3.5 w-3.5 text-primary" />
-            Tax Year {row.taxYear}
+            Tax Year {row.original.taxYear}
           </div>
-          <span className="text-[10px] text-muted-foreground font-mono">ID: {row.id.slice(0, 8)}...</span>
+          <span className="text-[10px] text-muted-foreground font-mono">ID: {row.original.id.slice(0, 8)}...</span>
         </div>
       ),
     },
     {
+      id: "property",
       header: "Property & Owner",
       accessorKey: "property.houseNumber",
-      cell: (row: TaxAssessment) => (
+      cell: ({ row }) => (
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-1.5 text-sm font-medium">
+          <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
             <Home className="h-3.5 w-3.5 text-muted-foreground" />
-            House #{row.property?.houseNumber}
+            House #{row.original.property?.houseNumber}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <User className="h-3 w-3" />
-            {row.property?.owner?.fullName || "N/A"}
+            {row.original.property?.owner?.fullName || "N/A"}
           </div>
         </div>
       ),
     },
     {
-      header: "Amounts (ETB)",
+      id: "totalAmount",
+      header: "Amount (ETB)",
       accessorKey: "totalAmount",
-      cell: (row: TaxAssessment) => (
-        <div className="flex flex-col gap-0.5 text-right pr-4">
-          <span className="text-sm font-black text-foreground">{format(row.totalAmount)}</span>
-          <div className="flex items-center justify-end gap-1 text-[10px] text-muted-foreground italic">
-            <span>Base: {format(row.baseAmount)}</span>
-            {Number(row.penaltyAmount) > 0 && <span className="text-rose-500">+{format(row.penaltyAmount)}</span>}
+      cell: ({ row }) => (
+        <div className="flex flex-col gap-0.5">
+          <span className="text-sm font-black text-primary">{format(row.original.totalAmount)}</span>
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground italic">
+            <span>Base: {format(row.original.baseAmount)}</span>
+            {Number(row.original.penaltyAmount) > 0 && <span className="text-rose-500">+{format(row.original.penaltyAmount)}</span>}
           </div>
         </div>
       ),
     },
     {
+      id: "status",
       header: "Status",
       accessorKey: "status",
-      cell: (row: TaxAssessment) => (
+      cell: ({ row }) => (
         <div className="flex flex-col gap-1">
-          <AssessmentStatusBadge status={row.status} dict={dict} />
-          {row.dueDate && (
+          <StatusBadge status={row.original.status as any} dict={dict} showIcon size="sm" />
+          {row.original.dueDate && (
             <span className="text-[10px] text-muted-foreground">
-              Due: {formatDate(row.dueDate)}
+              Due: {formatDate(row.original.dueDate)}
             </span>
           )}
         </div>
       ),
     },
     {
-      header: "Actions",
-      accessorKey: "actions",
-      cell: (row: TaxAssessment) => (
-        <AssessmentActions assessment={row} onRefresh={onRefresh} variant="dropdown" />
+      id: "actions",
+      header: "",
+      cell: ({ row }) => (
+        <div className="flex justify-end">
+          <AssessmentActions assessment={row.original} onRefresh={onRefresh} variant="dropdown" />
+        </div>
       ),
     },
   ];
 
   return (
-    <BasicDataGrid
+    <DataTable
       columns={columns}
       data={data}
       isLoading={isLoading}
-      totalItems={totalItems}
-      totalPages={totalPages}
-      currentPage={currentPage}
-      onPageChange={onPageChange}
-      onSearch={onSearch}
-      searchPlaceholder={dict.common?.search || "Search..."}
-      title={dict.common.assessments}
-      showAddButton={false}
+      searchColumn="taxYear"
+      searchPlaceholder={dict.common?.search || "Search tax year..."}
+      emptyTitle="No assessments found"
+      emptyDescription="Manage yearly house tax assessments here."
+      emptyIcon={Calculator}
     />
   );
 }

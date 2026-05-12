@@ -9,11 +9,11 @@ import FormProvider from "@/components/forms/FormProvider";
 import RHFTextField from "@/components/forms/RHFTextField";
 import RHFSelect from "@/components/forms/RHFSelect";
 import RHFTextArea from "@/components/forms/RHFTextArea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SectionCard } from "@/components/ui/section-card";
 import { useEffect, useState } from "react";
 import { locationCategoriesApi } from "@/features/location-categories/api";
 import { LocationCategory } from "@/features/location-categories/types";
-import { Loader2, Save, Send } from "lucide-react";
+import { Loader2, Save, Send, Building2, MapPin, FileText } from "lucide-react";
 
 import { OwnerSelector } from "@/features/property-owners/components/owner-selector";
 
@@ -48,7 +48,7 @@ export function PropertyForm({
     },
   });
 
-  const { handleSubmit, setValue } = methods;
+  const { handleSubmit } = methods;
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -87,30 +87,28 @@ export function PropertyForm({
 
   return (
     <FormProvider methods={methods}>
-      <div className="space-y-8">
+      <div className="space-y-8 max-w-5xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <SectionCard 
+            title="Basic Information" 
+            description="Core identification and size details for the property."
+            className="h-full"
+          >
+            <div className="space-y-4">
               <RHFTextField
                 name="houseNumber"
                 label="House Number"
                 placeholder="e.g. KE-123"
-                leftIcon="building"
               />
               <RHFTextField
                 name="fileNumber"
                 label="File Number"
                 placeholder="e.g. FN-2024-001"
-                leftIcon="hash"
               />
               <RHFTextField
                 name="landSizeKare"
                 label="Land Size (Kare / m²)"
                 type="number"
-                leftIcon="globe"
               />
               <RHFSelect
                 name="ownershipType"
@@ -118,14 +116,15 @@ export function PropertyForm({
                 options={ownershipOptions}
                 placeholder="Select ownership type"
               />
-            </CardContent>
-          </Card>
+            </div>
+          </SectionCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Location Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <SectionCard 
+            title="Location & Owner" 
+            description="Geographic details and linked ownership profile."
+            className="h-full"
+          >
+            <div className="space-y-4">
               <RHFSelect
                 name="locationCategoryId"
                 label="Location Category"
@@ -147,32 +146,34 @@ export function PropertyForm({
                   lang={lang}
                 />
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </SectionCard>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Supporting Documents</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="p-8 border-2 border-dashed rounded-lg text-center bg-muted/50">
-              <p className="text-muted-foreground">
-                Document upload functionality will be implemented in the Property Documents module.
-              </p>
-              <p className="text-xs text-muted-foreground mt-2">
-                Supporting evidence like ownership deeds and file references will be required later.
-              </p>
+        <SectionCard 
+          title="Supporting Documents" 
+          description="Manage official documents and ownership proof."
+          collapsible
+          defaultOpen={false}
+        >
+          <div className="p-8 border-2 border-dashed rounded-2xl text-center bg-muted/30">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-muted shadow-sm mb-4">
+              <FileText className="size-6 text-muted-foreground" />
             </div>
-          </CardContent>
-        </Card>
+            <p className="text-foreground font-medium">Document Upload</p>
+            <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+              Document upload functionality is available in the Property Documents module after registration.
+            </p>
+          </div>
+        </SectionCard>
 
-        <div className="flex justify-end gap-4">
+        <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4 border-t border-border/50">
           <Button
             type="button"
             variant="outline"
             onClick={handleSubmit(onSaveDraft)}
             disabled={isLoading}
+            className="h-12 rounded-xl px-6 border-slate-200 hover:bg-slate-50 text-slate-700"
           >
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Save as Draft
@@ -181,6 +182,7 @@ export function PropertyForm({
             type="button"
             onClick={handleSubmit(onFinalSubmit)}
             disabled={isLoading}
+            className="h-12 rounded-xl px-8 shadow-md"
           >
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
             Submit for Review
