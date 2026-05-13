@@ -3,59 +3,249 @@
 
 @custom-variant dark (&:is(.dark *));
 
+:root {
+  /* User's variables */
+  --background: oklch(0.9818 0.0054 95.0986);
+  --foreground: oklch(0.3438 0.0269 95.7226);
+  --card: oklch(0.9818 0.0054 95.0986);
+  --card-foreground: oklch(0.1908 0.0020 106.5859);
+  --popover: oklch(1.0000 0 0);
+  --popover-foreground: oklch(0.2671 0.0196 98.9390);
+  --primary: oklch(0.6171 0.1375 39.0427);
+  --primary-foreground: oklch(1.0000 0 0);
+  --secondary: oklch(0.9245 0.0138 92.9892);
+  --secondary-foreground: oklch(0.4334 0.0177 98.6048);
+  --muted: oklch(0.9341 0.0153 90.2390);
+  --muted-foreground: oklch(0.6059 0.0075 97.4233);
+  --accent: oklch(0.9245 0.0138 92.9892);
+  --accent-foreground: oklch(0.2671 0.0196 98.9390);
+  --destructive: oklch(0.1908 0.0020 106.5859);
+  --destructive-foreground: oklch(1.0000 0 0);
+  --border: oklch(0.8847 0.0069 97.3627);
+  --input: oklch(0.7621 0.0156 98.3528);
+  --ring: oklch(0.6171 0.1375 39.0427);
+  --chart-1: oklch(0.5583 0.1276 42.9956);
+  --chart-2: oklch(0.6898 0.1581 290.4107);
+  --chart-3: oklch(0.8816 0.0276 93.1280);
+  --chart-4: oklch(0.8822 0.0403 298.1792);
+  --chart-5: oklch(0.5608 0.1348 42.0584);
+  --sidebar: oklch(0.9663 0.0080 98.8792);
+  --sidebar-foreground: oklch(0.3590 0.0051 106.6524);
+  --sidebar-primary: oklch(0.6171 0.1375 39.0427);
+  --sidebar-primary-foreground: oklch(0.9881 0 0);
+  --sidebar-accent: oklch(0.9245 0.0138 92.9892);
+  --sidebar-accent-foreground: oklch(0.3250 0 0);
+  --sidebar-border: oklch(0.9401 0 0);
+  --sidebar-ring: oklch(0.7731 0 0);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --radius: 0.5rem;
+  --shadow-x: 0;
+  --shadow-y: 1px;
+  --shadow-blur: 3px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0.1;
+  --shadow-color: oklch(0 0 0);
+  --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+  --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10);
+  --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
+  --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 8px 10px -1px hsl(0 0% 0% / 0.10);
+  --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+
+  /* Custom existing variables */
+  --background-secondary: oklch(0.96 0.01 95); /* Adjusted from #f1f5f9 */
+  --primary-hover: oklch(0.55 0.12 39); /* Slightly darker primary */
+  --success: oklch(0.6 0.15 150); /* Emerald-600 */
+  --success-foreground: #ffffff;
+  --success-light: oklch(0.95 0.05 150);
+  --border-light: oklch(0.95 0.01 95);
+  
+  /* Shadow Tokens */
+  --shadow-soft: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-glow: 0 0 0 3px rgb(30 58 138 / 0.1);
+  --shadow-premium: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  
+  /* Spacing Tokens */
+  --sidebar-width: 16rem;
+  --header-height: 3.5rem;
+  --content-padding: 1.5rem;
+
+  /* Status Colors */
+  --status-draft: #64748b;
+  --status-draft-bg: #f1f5f9;
+  --status-draft-border: #cbd5e1;
+  --status-approved: #059669;
+  --status-approved-bg: #d1fae5;
+  --status-approved-border: #6ee7b7;
+  --status-rejected: #dc2626;
+  --status-rejected-bg: #fee2e2;
+  --status-rejected-border: #fca5a5;
+  --status-pending: #d97706;
+  --status-pending-bg: #fef3c7;
+  --status-pending-border: #fcd34d;
+  --status-paid: #059669;
+  --status-paid-bg: #d1fae5;
+  --status-paid-border: #6ee7b7;
+  --status-overdue: #dc2626;
+  --status-overdue-bg: #fee2e2;
+  --status-overdue-border: #fca5a5;
+}
+
+.dark {
+  /* User's variables */
+  --background: oklch(0.2679 0.0036 106.6427);
+  --foreground: oklch(0.8074 0.0142 93.0137);
+  --card: oklch(0.2679 0.0036 106.6427);
+  --card-foreground: oklch(0.9818 0.0054 95.0986);
+  --popover: oklch(0.3085 0.0035 106.6039);
+  --popover-foreground: oklch(0.9211 0.0040 106.4781);
+  --primary: oklch(0.6724 0.1308 38.7559);
+  --primary-foreground: oklch(1.0000 0 0);
+  --secondary: oklch(0.9818 0.0054 95.0986);
+  --secondary-foreground: oklch(0.3085 0.0035 106.6039);
+  --muted: oklch(0.2213 0.0038 106.7070);
+  --muted-foreground: oklch(0.7713 0.0169 99.0657);
+  --accent: oklch(0.2130 0.0078 95.4245);
+  --accent-foreground: oklch(0.9663 0.0080 98.8792);
+  --destructive: oklch(0.6368 0.2078 25.3313);
+  --destructive-foreground: oklch(1.0000 0 0);
+  --border: oklch(0.3618 0.0101 106.8928);
+  --input: oklch(0.4336 0.0113 100.2195);
+  --ring: oklch(0.6724 0.1308 38.7559);
+  --chart-1: oklch(0.5583 0.1276 42.9956);
+  --chart-2: oklch(0.6898 0.1581 290.4107);
+  --chart-3: oklch(0.2130 0.0078 95.4245);
+  --chart-4: oklch(0.3074 0.0516 289.3230);
+  --chart-5: oklch(0.5608 0.1348 42.0584);
+  --sidebar: oklch(0.2357 0.0024 67.7077);
+  --sidebar-foreground: oklch(0.8074 0.0142 93.0137);
+  --sidebar-primary: oklch(0.3250 0 0);
+  --sidebar-primary-foreground: oklch(0.9881 0 0);
+  --sidebar-accent: oklch(0.1680 0.0020 106.6177);
+  --sidebar-accent-foreground: oklch(0.8074 0.0142 93.0137);
+  --sidebar-border: oklch(0.9401 0 0);
+  --sidebar-ring: oklch(0.7731 0 0);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --radius: 0.5rem;
+  --shadow-x: 0;
+  --shadow-y: 1px;
+  --shadow-blur: 3px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0.1;
+  --shadow-color: oklch(0 0 0);
+  --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+  --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10);
+  --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
+  --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 8px 10px -1px hsl(0 0% 0% / 0.10);
+  --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+
+  /* Custom existing variables */
+  --background-secondary: oklch(0.25 0.01 106);
+  --primary-hover: oklch(0.7 0.13 38);
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --success-light: #064e3b;
+  --border-light: oklch(0.3 0.01 106);
+  
+  --shadow-soft: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.6), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+  --shadow-glow: 0 0 0 2px rgb(59 130 246 / 0.3), 0 0 15px 0 rgb(59 130 246 / 0.2);
+  --shadow-premium: 0 10px 15px -3px rgb(0 0 0 / 0.8), 0 4px 6px -4px rgb(0 0 0 / 0.6);
+
+  --status-draft: #94a3b8;
+  --status-draft-bg: #1e293b;
+  --status-draft-border: #475569;
+  --status-approved: #10b981;
+  --status-approved-bg: #064e3b;
+  --status-approved-border: #059669;
+  --status-rejected: #ef4444;
+  --status-rejected-bg: #7f1d1d;
+  --status-rejected-border: #dc2626;
+  --status-pending: #f59e0b;
+  --status-pending-bg: #78350f;
+  --status-pending-border: #d97706;
+  --status-paid: #10b981;
+  --status-paid-bg: #064e3b;
+  --status-paid-border: #059669;
+  --status-overdue: #ef4444;
+  --status-overdue-bg: #7f1d1d;
+  --status-overdue-border: #dc2626;
+}
+
 @theme inline {
-  /* Typography */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  
-  /* Base colors */
+  /* User's variables */
   --color-background: var(--background);
-  --color-background-secondary: var(--background-secondary);
   --color-foreground: var(--foreground);
-  
-  /* Sidebar colors */
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  
-  /* Chart colors */
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  
-  /* UI colors */
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-border-light: var(--border-light);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+
+  /* Custom existing variables */
+  --color-background-secondary: var(--background-secondary);
+  --color-border-light: var(--border-light);
   --color-primary-hover: var(--primary-hover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
   
-  /* Success colors */
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-success-light: var(--success-light);
   
-  /* Status colors */
   --color-status-draft: var(--status-draft);
   --color-status-draft-bg: var(--status-draft-bg);
   --color-status-draft-border: var(--status-draft-border);
@@ -74,222 +264,17 @@
   --color-status-overdue: var(--status-overdue);
   --color-status-overdue-bg: var(--status-overdue-bg);
   --color-status-overdue-border: var(--status-overdue-border);
-  
-  /* Border radius */
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+
   --radius-2xl: calc(var(--radius) + 8px);
   
-  /* Shadows */
   --shadow-soft: var(--shadow-soft);
   --shadow-elevated: var(--shadow-elevated);
   --shadow-glow: var(--shadow-glow);
   --shadow-premium: var(--shadow-premium);
   
-  /* Spacing */
   --spacing-sidebar-width: var(--sidebar-width);
   --spacing-header-height: var(--header-height);
   --spacing-content-padding: var(--content-padding);
-}
-
-:root {
-  --radius: 0.6rem;
-  
-  /* ===== Modern Civic SaaS Theme - Light Mode ===== */
-  
-  /* Background Colors - Soft blue-gray */
-  --background: #f8fafc; /* Soft blue-gray app background (slate-50) */
-  --background-secondary: #f1f5f9; /* Slightly darker background (slate-100) */
-  --foreground: #0f172a; /* Deep slate text (slate-900) */
-  
-  /* Surface Colors - White/translucent */
-  --card: #ffffff; /* Clean white cards */
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  
-  /* Primary Colors - Deep royal blue */
-  --primary: #1e3a8a; /* Deep royal blue (blue-900) */
-  --primary-foreground: #ffffff;
-  --primary-hover: #1e40af; /* Slightly lighter for hover (blue-800) */
-  
-  /* Secondary Colors - Emerald/teal for success */
-  --secondary: #f1f5f9; /* Slate 100 */
-  --secondary-foreground: #1e3a8a;
-  --success: #059669; /* Emerald-600 for success states */
-  --success-foreground: #ffffff;
-  --success-light: #d1fae5; /* Emerald-100 for backgrounds */
-  
-  /* Muted Colors */
-  --muted: #f1f5f9; /* Slate 100 */
-  --muted-foreground: #64748b; /* Slate 500 */
-  
-  /* Accent Colors */
-  --accent: #f8fafc;
-  --accent-foreground: #1e3a8a;
-  
-  /* Destructive Colors */
-  --destructive: #dc2626; /* Red-600 */
-  --destructive-foreground: #ffffff;
-  
-  /* Border Colors - Soft slate/blue-gray */
-  --border: #e2e8f0; /* Soft slate border (slate-200) */
-  --border-light: #f1f5f9; /* Lighter border (slate-100) */
-  --input: #e2e8f0;
-  --ring: #1e3a8a;
-  
-  /* Shadow Tokens - Soft layered shadows */
-  --shadow-soft: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* Subtle shadow */
-  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* Premium card elevation */
-  --shadow-glow: 0 0 0 3px rgb(30 58 138 / 0.1); /* Active state glow */
-  --shadow-premium: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); /* Premium elevated shadow */
-  
-  /* Spacing Tokens */
-  --sidebar-width: 16rem; /* 256px */
-  --header-height: 3.5rem; /* 56px */
-  --content-padding: 1.5rem; /* 24px */
-  
-  /* Chart colors */
-  --chart-1: #1e3a8a; /* Deep royal blue */
-  --chart-2: #10b981; /* Emerald accents */
-  --chart-3: #0f766e; /* Teal */
-  --chart-4: #0f172a; /* Deep slate */
-  --chart-5: #94a3b8; /* Slate-400 */
-  
-  /* Sidebar specific */
-  --sidebar: #ffffff;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #1e3a8a;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f5f9;
-  --sidebar-accent-foreground: #1e3a8a;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: #1e3a8a;
-  
-  /* Status Colors */
-  --status-draft: #64748b; /* Slate-500 */
-  --status-draft-bg: #f1f5f9; /* Slate-100 */
-  --status-draft-border: #cbd5e1; /* Slate-300 */
-  
-  --status-approved: #059669; /* Emerald-600 */
-  --status-approved-bg: #d1fae5; /* Emerald-100 */
-  --status-approved-border: #6ee7b7; /* Emerald-300 */
-  
-  --status-rejected: #dc2626; /* Red-600 */
-  --status-rejected-bg: #fee2e2; /* Red-100 */
-  --status-rejected-border: #fca5a5; /* Red-300 */
-  
-  --status-pending: #d97706; /* Amber-600 */
-  --status-pending-bg: #fef3c7; /* Amber-100 */
-  --status-pending-border: #fcd34d; /* Amber-300 */
-  
-  --status-paid: #059669; /* Emerald-600 */
-  --status-paid-bg: #d1fae5; /* Emerald-100 */
-  --status-paid-border: #6ee7b7; /* Emerald-300 */
-  
-  --status-overdue: #dc2626; /* Red-600 */
-  --status-overdue-bg: #fee2e2; /* Red-100 */
-  --status-overdue-border: #fca5a5; /* Red-300 */
-}
-
-.dark {
-  /* ===== Modern Civic SaaS Theme - Dark Mode ===== */
-  
-  /* Background Colors - True OLED Black and Deep Slate */
-  --background: #000000; /* OLED Black */
-  --background-secondary: #0a0a0a; /* Almost black */
-  --foreground: #f8fafc; /* Light text (slate-50) */
-  
-  /* Surface Colors - Dark translucent */
-  --card: #0a0a0a; /* Dark cards */
-  --card-foreground: #f8fafc;
-  --popover: #0a0a0a;
-  --popover-foreground: #f8fafc;
-  
-  /* Primary Colors - Brighter blue for dark mode */
-  --primary: #3b82f6; /* Brighter blue (blue-500) */
-  --primary-foreground: #ffffff;
-  --primary-hover: #60a5fa; /* Lighter for hover (blue-400) */
-  
-  /* Secondary Colors - Emerald for success */
-  --secondary: #1e293b; /* Slate-800 */
-  --secondary-foreground: #f8fafc;
-  --success: #10b981; /* Emerald-500 for success states */
-  --success-foreground: #ffffff;
-  --success-light: #064e3b; /* Emerald-900 for backgrounds */
-  
-  /* Muted Colors */
-  --muted: #1e293b; /* Slate-800 */
-  --muted-foreground: #94a3b8; /* Slate-400 */
-  
-  /* Accent Colors */
-  --accent: #1e293b;
-  --accent-foreground: #3b82f6;
-  
-  /* Destructive Colors */
-  --destructive: #ef4444; /* Red-500 */
-  --destructive-foreground: #ffffff;
-  
-  /* Border Colors - Dark slate */
-  --border: #1e293b; /* Dark slate border (slate-800) */
-  --border-light: #334155; /* Lighter border (slate-700) */
-  --input: #1e293b;
-  --ring: #3b82f6;
-  
-  /* Shadow Tokens - Darker shadows for dark mode */
-  --shadow-soft: 0 1px 2px 0 rgb(0 0 0 / 0.5);
-  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.6), 0 2px 4px -2px rgb(0 0 0 / 0.5);
-  --shadow-glow: 0 0 0 2px rgb(59 130 246 / 0.3), 0 0 15px 0 rgb(59 130 246 / 0.2);
-  --shadow-premium: 0 10px 15px -3px rgb(0 0 0 / 0.8), 0 4px 6px -4px rgb(0 0 0 / 0.6);
-  
-  /* Spacing Tokens (same as light mode) */
-  --sidebar-width: 16rem;
-  --header-height: 3.5rem;
-  --content-padding: 1.5rem;
-  
-  /* Chart colors for dark mode */
-  --chart-1: #3b82f6; /* Brighter blue */
-  --chart-2: #10b981; /* Emerald */
-  --chart-3: #14b8a6; /* Teal */
-  --chart-4: #94a3b8; /* Slate-400 */
-  --chart-5: #1e293b; /* Slate-800 */
-  
-  /* Sidebar dark */
-  --sidebar: #020617;
-  --sidebar-foreground: #f8fafc;
-  --sidebar-primary: #3b82f6;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #0f172a;
-  --sidebar-accent-foreground: #f8fafc;
-  --sidebar-border: #1e293b;
-  --sidebar-ring: #3b82f6;
-  
-  /* Status Colors - Dark mode variants */
-  --status-draft: #94a3b8; /* Slate-400 */
-  --status-draft-bg: #1e293b; /* Slate-800 */
-  --status-draft-border: #475569; /* Slate-600 */
-  
-  --status-approved: #10b981; /* Emerald-500 */
-  --status-approved-bg: #064e3b; /* Emerald-900 */
-  --status-approved-border: #059669; /* Emerald-600 */
-  
-  --status-rejected: #ef4444; /* Red-500 */
-  --status-rejected-bg: #7f1d1d; /* Red-900 */
-  --status-rejected-border: #dc2626; /* Red-600 */
-  
-  --status-pending: #f59e0b; /* Amber-500 */
-  --status-pending-bg: #78350f; /* Amber-900 */
-  --status-pending-border: #d97706; /* Amber-600 */
-  
-  --status-paid: #10b981; /* Emerald-500 */
-  --status-paid-bg: #064e3b; /* Emerald-900 */
-  --status-paid-border: #059669; /* Emerald-600 */
-  
-  --status-overdue: #ef4444; /* Red-500 */
-  --status-overdue-bg: #7f1d1d; /* Red-900 */
-  --status-overdue-border: #dc2626; /* Red-600 */
 }
 
 @layer base {

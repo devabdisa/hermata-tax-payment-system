@@ -24,9 +24,11 @@ async function main() {
   await prisma.propertyDocument.deleteMany();
   await prisma.property.deleteMany();
   await prisma.houseOwnerProfile.deleteMany();
+  await prisma.session.deleteMany();
+  await prisma.account.deleteMany();
   await prisma.user.deleteMany({
     where: {
-      role: UserRole.USER
+      role: { in: [UserRole.USER, UserRole.MANAGER, UserRole.ASSIGNED_WORKER] }
     }
   });
 
