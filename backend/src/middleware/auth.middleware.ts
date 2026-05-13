@@ -48,7 +48,11 @@ export const authMiddleware = catchAsync(
         }, {} as Record<string, string>);
         
         console.log(`[Auth] Available Cookies: ${Object.keys(cookies).join(", ")}`);
-        sessionToken = cookies["better-auth.session-token"] || cookies["__Secure-better-auth.session-token"];
+        sessionToken = 
+          cookies["better-auth.session-token"] || 
+          cookies["better-auth.session_token"] ||
+          cookies["__Secure-better-auth.session-token"] ||
+          cookies["__Secure-better-auth.session_token"];
       }
 
       console.log(`[Auth] Extracted Session Token: ${sessionToken ? "FOUND" : "NOT FOUND"}`);
