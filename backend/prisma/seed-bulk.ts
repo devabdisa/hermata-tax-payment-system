@@ -16,26 +16,21 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('🌱 Starting BULK database seeding...');
   
-  // Clean up existing generated data to avoid unique constraint violations
-  console.log('🧹 Cleaning up existing data...');
+  // Clean up existing generated data
+  console.log('🧹 Cleaning up generated data (preserving registered users/accounts)...');
   await prisma.kebeleConfirmation.deleteMany();
   await prisma.payment.deleteMany();
   await prisma.taxAssessment.deleteMany();
   await prisma.propertyDocument.deleteMany();
   await prisma.property.deleteMany();
   await prisma.houseOwnerProfile.deleteMany();
-  await prisma.session.deleteMany();
-  await prisma.account.deleteMany();
-  await prisma.user.deleteMany({
-    where: {
-      role: { in: [UserRole.USER, UserRole.MANAGER, UserRole.ASSIGNED_WORKER] }
-    }
-  });
+  // Note: We no longer delete Users/Accounts/Sessions here to allow manual registration
 
-  // Ensure basic setup exists
+  // Ensure basic setup exists (Smarter Upsert)
+  console.log('🔧 Ensuring system users exist and have correct roles...');
   const admin = await prisma.user.upsert({
     where: { email: 'admin@hermata.local' },
-    update: {},
+    update: { role: UserRole.ADMIN }, // FORCE role fix if they registered as USER
     create: {
       name: 'System Admin',
       email: 'admin@hermata.local',
@@ -46,7 +41,7 @@ async function main() {
 
   const manager = await prisma.user.upsert({
     where: { email: 'manager@hermata.local' },
-    update: {},
+    update: { role: UserRole.MANAGER }, // FORCE role fix if they registered as USER
     create: {
       name: 'Kebele Manager',
       email: 'manager@hermata.local',

@@ -20,6 +20,11 @@ export const authMiddleware = catchAsync(
     let userRole: string | null = null;
     let userEmail: string | null = null;
 
+    // DEBUG: Log incoming auth info for production troubleshooting
+    console.log(`[Auth] Incoming Request: ${req.method} ${req.path}`);
+    console.log(`[Auth] Has Auth Header: ${!!authHeader}`);
+    console.log(`[Auth] Has Cookie Header: ${!!cookieHeader}`);
+
     // 1. Check for Development Bypass
     if (isDevelopment && enableDevBypass && authHeader?.startsWith("Bearer dev-")) {
       const role = authHeader.replace("Bearer dev-", "").toUpperCase();
@@ -42,8 +47,11 @@ export const authMiddleware = catchAsync(
           return acc;
         }, {} as Record<string, string>);
         
+        console.log(`[Auth] Available Cookies: ${Object.keys(cookies).join(", ")}`);
         sessionToken = cookies["better-auth.session-token"] || cookies["__Secure-better-auth.session-token"];
       }
+
+      console.log(`[Auth] Extracted Session Token: ${sessionToken ? "FOUND" : "NOT FOUND"}`);
 
       if (!sessionToken) {
         throw new ApiError(401, "Authentication required");
