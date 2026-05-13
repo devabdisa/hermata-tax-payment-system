@@ -1,16 +1,20 @@
 /**
  * API Client for calling the Express backend.
+ *
+ * Requests are proxied through Next.js (see next.config.ts) to avoid cross-origin
+ * cookie issues with better-auth's HttpOnly session cookies.
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
 
 export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${API_URL}${endpoint}`;
-  
+
   const headers = new Headers(options.headers);
+
   if (!(options.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
@@ -18,7 +22,7 @@ export async function apiRequest<T>(
   const response = await fetch(url, {
     ...options,
     headers,
-    credentials: "include", // Important for Better Auth session cookies
+    credentials: "include", // Essential for forwarding session cookies through the proxy
   });
 
   const data = await response.json();

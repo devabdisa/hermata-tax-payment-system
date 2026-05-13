@@ -26,6 +26,22 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/ui/metric-card";
 import { calculateMetricChange, formatETB, formatCompactNumber } from "@/lib/metrics";
+import { motion, Variants } from "framer-motion";
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+};
 
 interface DashboardPageClientProps {
   dict: Dictionary;
@@ -125,30 +141,42 @@ export function DashboardPageClient({ dict, lang }: DashboardPageClientProps) {
   return (
     <div className="space-y-8">
       {/* Premium Metric Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="grid gap-6 md:grid-cols-2 lg:grid-cols-4"
+      >
         {metrics.map((metric, i) => {
           const trend = calculateMetricChange(metric.value, metric.previousValue);
           return (
-            <MetricCard
-              key={i}
-              title={metric.title}
-              value={metric.isCurrency ? formatCompactNumber(metric.value) : metric.value.toLocaleString()}
-              unit={metric.unit}
-              icon={metric.icon}
-              description={metric.description}
-              change={{
-                value: trend.value,
-                trend: trend.isPositive ? 'up' : 'down'
-              }}
-              href={metric.href}
-              variant={metric.variant}
-            />
+            <motion.div key={i} variants={itemVariants}>
+              <MetricCard
+                title={metric.title}
+                value={metric.isCurrency ? formatCompactNumber(metric.value) : metric.value.toLocaleString()}
+                unit={metric.unit}
+                icon={metric.icon}
+                description={metric.description}
+                change={{
+                  value: trend.value,
+                  trend: trend.isPositive ? 'up' : 'down'
+                }}
+                href={metric.href}
+                variant={metric.variant}
+              />
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
-      <div className="grid gap-6 md:grid-cols-7">
-        <Card className="col-span-full lg:col-span-4 border-border/50 shadow-sm rounded-2xl overflow-hidden bg-card/50 backdrop-blur-sm">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="grid gap-6 md:grid-cols-7"
+      >
+        <motion.div variants={itemVariants} className="col-span-full lg:col-span-4">
+          <Card className="border-border/50 shadow-sm rounded-2xl overflow-hidden bg-card/50 backdrop-blur-sm h-full">
           <CardHeader className="border-b border-border/50 bg-muted/20">
             <div className="flex items-center justify-between">
               <div>
@@ -184,8 +212,10 @@ export function DashboardPageClient({ dict, lang }: DashboardPageClientProps) {
             </div>
           </CardContent>
         </Card>
+        </motion.div>
 
-        <Card className="col-span-full lg:col-span-3 border-border/50 shadow-sm rounded-2xl overflow-hidden bg-card/50 backdrop-blur-sm">
+        <motion.div variants={itemVariants} className="col-span-full lg:col-span-3">
+          <Card className="border-border/50 shadow-sm rounded-2xl overflow-hidden bg-card/50 backdrop-blur-sm h-full">
           <CardHeader className="border-b border-border/50 bg-muted/20">
             <CardTitle className="text-xl">{dict.dashboardCards.quickActions}</CardTitle>
             <CardDescription>Common shortcuts</CardDescription>
@@ -214,7 +244,8 @@ export function DashboardPageClient({ dict, lang }: DashboardPageClientProps) {
              ))}
           </CardContent>
         </Card>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

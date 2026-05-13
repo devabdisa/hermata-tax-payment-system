@@ -1,5 +1,8 @@
+"use client";
+
 import * as React from 'react';
 import { ArrowDown, ArrowUp, LucideIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 import { cn } from '@/lib/utils';
 
@@ -61,14 +64,19 @@ export const MetricCard = React.memo(({
   }, [value]);
 
   return (
-    <div
+    <motion.div
+      whileHover={{ y: -4, scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className={cn(
-        'premium-card p-6 transition-smooth hover-lift group cursor-pointer',
+        'premium-card p-6 transition-colors duration-300 group cursor-pointer relative overflow-hidden',
         className,
       )}
       onClick={() => href && (window.location.href = href)}
     >
-      <div className="flex items-start justify-between">
+      {/* Subtle glow effect on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      
+      <div className="flex items-start justify-between relative z-10">
         <div className="flex-1">
           <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
             {title}
@@ -118,7 +126,7 @@ export const MetricCard = React.memo(({
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 });
 

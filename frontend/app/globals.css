@@ -4,6 +4,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Typography */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  
   /* Base colors */
   --color-background: var(--background);
   --color-background-secondary: var(--background-secondary);
@@ -194,15 +197,15 @@
 .dark {
   /* ===== Modern Civic SaaS Theme - Dark Mode ===== */
   
-  /* Background Colors - Deep slate */
-  --background: #020617; /* Deep slate background (slate-950) */
-  --background-secondary: #0f172a; /* Slightly lighter background (slate-900) */
+  /* Background Colors - True OLED Black and Deep Slate */
+  --background: #000000; /* OLED Black */
+  --background-secondary: #0a0a0a; /* Almost black */
   --foreground: #f8fafc; /* Light text (slate-50) */
   
   /* Surface Colors - Dark translucent */
-  --card: #0f172a; /* Dark slate cards (slate-900) */
+  --card: #0a0a0a; /* Dark cards */
   --card-foreground: #f8fafc;
-  --popover: #0f172a;
+  --popover: #0a0a0a;
   --popover-foreground: #f8fafc;
   
   /* Primary Colors - Brighter blue for dark mode */
@@ -236,10 +239,10 @@
   --ring: #3b82f6;
   
   /* Shadow Tokens - Darker shadows for dark mode */
-  --shadow-soft: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-  --shadow-glow: 0 0 0 3px rgb(59 130 246 / 0.2);
-  --shadow-premium: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-soft: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.6), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+  --shadow-glow: 0 0 0 2px rgb(59 130 246 / 0.3), 0 0 15px 0 rgb(59 130 246 / 0.2);
+  --shadow-premium: 0 10px 15px -3px rgb(0 0 0 / 0.8), 0 4px 6px -4px rgb(0 0 0 / 0.6);
   
   /* Spacing Tokens (same as light mode) */
   --sidebar-width: 16rem;
@@ -344,6 +347,25 @@
   
   .gradient-success {
     background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  }
+
+  /* Mesh Gradients */
+  .bg-mesh-light {
+    background-color: #f8fafc;
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(213,100%,92%,1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(160,100%,94%,1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(213,100%,92%,1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(160,100%,94%,1) 0px, transparent 50%);
+  }
+
+  .dark .bg-mesh-dark {
+    background-color: #000000;
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(213,50%,10%,1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(160,50%,10%,1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(213,50%,10%,1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(160,50%,10%,1) 0px, transparent 50%);
   }
   
   /* Spacing utilities */
