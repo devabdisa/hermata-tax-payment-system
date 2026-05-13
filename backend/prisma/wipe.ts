@@ -5,6 +5,16 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+function assertWipeAllowed() {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Refusing full database wipe in production');
+  }
+
+  if (process.env.ALLOW_FULL_DB_WIPE !== 'true') {
+    throw new Error('Refusing full database wipe because ALLOW_FULL_DB_WIPE is not true');
+  }
+}
+
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error('DATABASE_URL is not set');
 
@@ -13,9 +23,10 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log('🚀 Starting NUCLEAR ERASE of the database...');
+  assertWipeAllowed();
+  console.log('Starting full database wipe (non-production only)...');
 
-  // The order matters due to foreign key constraints!
+  // The order matters due to foreign key constraints.
   await prisma.kebeleConfirmation.deleteMany();
   await prisma.payment.deleteMany();
   await prisma.taxAssessment.deleteMany();
@@ -30,12 +41,12 @@ async function main() {
   await prisma.setting.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log('✨ Database is now 100% empty and clean!');
+  console.log('Database wipe completed.');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Wipe failed:');
+    console.error('Wipe failed:');
     console.error(e);
     process.exit(1);
   })

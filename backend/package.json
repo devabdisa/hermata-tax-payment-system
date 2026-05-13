@@ -11,15 +11,14 @@
     "prisma:validate": "prisma validate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "prisma db seed",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:seed:reset-demo": "tsx prisma/seed-reset-demo.ts",
+    "prisma:wipe:full": "tsx prisma/wipe.ts",
     "prisma:studio": "prisma studio",
     "db:setup": "npm run prisma:generate && npm run prisma:migrate && npm run prisma:seed",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",

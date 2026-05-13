@@ -1,426 +1,644 @@
-import { PrismaClient, UserRole, UserStatus, OwnershipType, DocumentStatus, AssessmentStatus, PaymentMethod, PaymentStatus, ConfirmationStatus } from '@prisma/client';
+import {
+  PrismaClient,
+  UserRole,
+  UserStatus,
+  OwnershipType,
+  PropertyStatus,
+  DocumentStatus,
+  AssessmentStatus,
+  PaymentMethod,
+  PaymentStatus,
+  ConfirmationStatus,
+} from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
+import dotenv from "dotenv";
+import { hashPassword } from "better-auth/crypto";
 
-const prisma = new PrismaClient();
+dotenv.config();
+
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error("DATABASE_URL is not set");
+}
+
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
+
+const DEMO_EMAILS = [
+  "admin@hermata.local",
+  "manager@hermata.local",
+  "worker@hermata.local",
+  "owner@hermata.local",
+  "owner2@hermata.local",
+] as const;
+
+const DEMO_HOUSE_NUMBERS = ["H-001", "H-002", "H-003", "H-004", "H-005"] as const;
+const DEMO_FILE_NUMBERS = ["F-001", "F-002", "F-003", "F-004", "F-005"] as const;
+const DEMO_PASSWORD = process.env.DEMO_USER_PASSWORD || "Demo12345!";
+
+async function ensureCredentialAccount(user: { id: string }, plainPassword: string) {
+  const passwordHash = await hashPassword(plainPassword);
+  const existingCredentialAccount = await prisma.account.findFirst({
+    where: {
+      userId: user.id,
+      providerId: "credential",
+    },
+    select: { id: true },
+  });
+
+  if (existingCredentialAccount) {
+    await prisma.account.update({
+      where: { id: existingCredentialAccount.id },
+      data: {
+        password: passwordHash,
+      },
+    });
+    return;
+  }
+
+  await prisma.account.create({
+    data: {
+      userId: user.id,
+      providerId: "credential",
+      accountId: user.id,
+      password: passwordHash,
+    },
+  });
+}
+
+async function resetDemoOwnedData() {
+  const demoUsers = await prisma.user.findMany({
+    where: { email: { in: [...DEMO_EMAILS] } },
+    select: { id: true, email: true },
+  });
+
+  const demoUserIds = demoUsers.map((u) => u.id);
+
+  const demoOwnerProfiles = await prisma.houseOwnerProfile.findMany({
+    where: { userId: { in: demoUserIds } },
+    select: { id: true },
+  });
+  const demoOwnerIds = demoOwnerProfiles.map((p) => p.id);
+
+  const demoProperties = await prisma.property.findMany({
+    where: {
+      OR: [
+        { ownerId: { in: demoOwnerIds } },
+        { houseNumber: { in: [...DEMO_HOUSE_NUMBERS] } },
+        { fileNumber: { in: [...DEMO_FILE_NUMBERS] } },
+      ],
+    },
+    select: { id: true },
+  });
+  const demoPropertyIds = demoProperties.map((p) => p.id);
+
+  const demoAssessments = await prisma.taxAssessment.findMany({
+    where: { propertyId: { in: demoPropertyIds } },
+    select: { id: true },
+  });
+  const demoAssessmentIds = demoAssessments.map((a) => a.id);
+
+  const demoPayments = await prisma.payment.findMany({
+    where: {
+      OR: [
+        { assessmentId: { in: demoAssessmentIds } },
+        { referenceNumber: { startsWith: "SINQEE-DEMO-" } },
+        { receiptFileUrl: { contains: "/uploads/demo/" } },
+      ],
+    },
+    select: { id: true },
+  });
+  const demoPaymentIds = demoPayments.map((p) => p.id);
+
+  // Delete in FK-safe order.
+  await prisma.kebeleConfirmation.deleteMany({
+    where: {
+      OR: [
+        { paymentId: { in: demoPaymentIds } },
+        { confirmationNumber: { startsWith: "KHC-" } },
+      ],
+    },
+  });
+
+  await prisma.payment.deleteMany({
+    where: { id: { in: demoPaymentIds } },
+  });
+
+  await prisma.taxAssessment.deleteMany({
+    where: { id: { in: demoAssessmentIds } },
+  });
+
+  await prisma.propertyDocument.deleteMany({
+    where: {
+      OR: [
+        { propertyId: { in: demoPropertyIds } },
+        { fileUrl: { contains: "/uploads/demo/" } },
+      ],
+    },
+  });
+
+  await prisma.property.deleteMany({
+    where: { id: { in: demoPropertyIds } },
+  });
+}
 
 async function main() {
-  console.log('🌱 Starting database seeding...');
+  const currentYear = new Date().getFullYear();
+  const previousYear = currentYear - 1;
 
-  // 1. Seed Users
-  console.log('👤 Seeding users...');
-  
-  const users = [
-    {
-      name: 'System Admin',
-      email: 'admin@hermata.local',
+  console.log("Seeding demo workflow data...");
+
+  await resetDemoOwnedData();
+
+  // Users
+  const admin = await prisma.user.upsert({
+    where: { email: "admin@hermata.local" },
+    update: { name: "System Admin", role: UserRole.ADMIN, status: UserStatus.ACTIVE },
+    create: {
+      name: "System Admin",
+      email: "admin@hermata.local",
       role: UserRole.ADMIN,
       status: UserStatus.ACTIVE,
     },
-    {
-      name: 'Kebele Manager',
-      email: 'manager@hermata.local',
+  });
+
+  const manager = await prisma.user.upsert({
+    where: { email: "manager@hermata.local" },
+    update: { name: "Kebele Manager", role: UserRole.MANAGER, status: UserStatus.ACTIVE },
+    create: {
+      name: "Kebele Manager",
+      email: "manager@hermata.local",
       role: UserRole.MANAGER,
       status: UserStatus.ACTIVE,
     },
-    {
-      name: 'Assigned Worker',
-      email: 'worker@hermata.local',
+  });
+
+  const worker = await prisma.user.upsert({
+    where: { email: "worker@hermata.local" },
+    update: { name: "Assigned Worker", role: UserRole.ASSIGNED_WORKER, status: UserStatus.ACTIVE },
+    create: {
+      name: "Assigned Worker",
+      email: "worker@hermata.local",
       role: UserRole.ASSIGNED_WORKER,
       status: UserStatus.ACTIVE,
     },
-    {
-      name: 'Demo House Owner',
-      email: 'owner@hermata.local',
+  });
+
+  const ownerUser1 = await prisma.user.upsert({
+    where: { email: "owner@hermata.local" },
+    update: { name: "Demo House Owner", role: UserRole.USER, status: UserStatus.ACTIVE },
+    create: {
+      name: "Demo House Owner",
+      email: "owner@hermata.local",
       role: UserRole.USER,
       status: UserStatus.ACTIVE,
     },
-    {
-      name: 'Second House Owner',
-      email: 'owner2@hermata.local',
+  });
+
+  const ownerUser2 = await prisma.user.upsert({
+    where: { email: "owner2@hermata.local" },
+    update: { name: "Second House Owner", role: UserRole.USER, status: UserStatus.ACTIVE },
+    create: {
+      name: "Second House Owner",
+      email: "owner2@hermata.local",
       role: UserRole.USER,
       status: UserStatus.ACTIVE,
     },
-  ];
+  });
 
-  const seededUsers: any = {};
+  await ensureCredentialAccount(admin, DEMO_PASSWORD);
+  await ensureCredentialAccount(manager, DEMO_PASSWORD);
+  await ensureCredentialAccount(worker, DEMO_PASSWORD);
+  await ensureCredentialAccount(ownerUser1, DEMO_PASSWORD);
+  await ensureCredentialAccount(ownerUser2, DEMO_PASSWORD);
 
-  for (const userData of users) {
-    const user = await prisma.user.upsert({
-      where: { email: userData.email },
-      update: {
-        role: userData.role,
-        status: userData.status,
-      },
-      create: userData,
-    });
-    seededUsers[userData.email] = user;
-    console.log(`   - User upserted: ${userData.email}`);
-  }
+  // Owner profiles
+  const ownerProfile1 = await prisma.houseOwnerProfile.upsert({
+    where: { userId: ownerUser1.id },
+    update: {
+      fullName: "Demo House Owner",
+      phone: "+251900000001",
+      kebeleIdNumber: "HK-OWN-001",
+      nationalId: "NID-DEMO-001",
+      address: "Hermata Kebele",
+    },
+    create: {
+      userId: ownerUser1.id,
+      fullName: "Demo House Owner",
+      phone: "+251900000001",
+      kebeleIdNumber: "HK-OWN-001",
+      nationalId: "NID-DEMO-001",
+      address: "Hermata Kebele",
+    },
+  });
 
-  // 2. Seed Location Categories
-  console.log('📍 Seeding location categories...');
-  
-  const categories = [
-    {
-      code: 'A',
-      name: 'City Center / Main Road',
-      description: 'Higher-value area close to town center, main road, or commercial activity',
+  const ownerProfile2 = await prisma.houseOwnerProfile.upsert({
+    where: { userId: ownerUser2.id },
+    update: {
+      fullName: "Second House Owner",
+      phone: "+251900000002",
+      kebeleIdNumber: "HK-OWN-002",
+      nationalId: "NID-DEMO-002",
+      address: "Hermata Kebele",
+    },
+    create: {
+      userId: ownerUser2.id,
+      fullName: "Second House Owner",
+      phone: "+251900000002",
+      kebeleIdNumber: "HK-OWN-002",
+      nationalId: "NID-DEMO-002",
+      address: "Hermata Kebele",
+    },
+  });
+
+  // Location categories
+  const categoryA = await prisma.locationCategory.upsert({
+    where: { code: "A" },
+    update: {
+      name: "City Center / Main Road",
+      description: "Higher-value area close to town center, main road, or commercial activity",
       priority: 1,
       isActive: true,
     },
-    {
-      code: 'B',
-      name: 'Developed Residential Area',
-      description: 'Residential area near town or developed services',
+    create: {
+      code: "A",
+      name: "City Center / Main Road",
+      description: "Higher-value area close to town center, main road, or commercial activity",
+      priority: 1,
+      isActive: true,
+    },
+  });
+
+  const categoryB = await prisma.locationCategory.upsert({
+    where: { code: "B" },
+    update: {
+      name: "Developed Residential Area",
+      description: "Residential area near town or developed services",
       priority: 2,
       isActive: true,
     },
-    {
-      code: 'C',
-      name: 'Inner Village / Less Developed Area',
-      description: 'Lower-value area farther from town center',
+    create: {
+      code: "B",
+      name: "Developed Residential Area",
+      description: "Residential area near town or developed services",
+      priority: 2,
+      isActive: true,
+    },
+  });
+
+  const categoryC = await prisma.locationCategory.upsert({
+    where: { code: "C" },
+    update: {
+      name: "Inner Village / Less Developed Area",
+      description: "Lower-value area farther from town center",
       priority: 3,
       isActive: true,
     },
-  ];
+    create: {
+      code: "C",
+      name: "Inner Village / Less Developed Area",
+      description: "Lower-value area farther from town center",
+      priority: 3,
+      isActive: true,
+    },
+  });
 
-  const seededCategories: any = {};
+  const categories = { A: categoryA, B: categoryB, C: categoryC };
 
-  for (const catData of categories) {
-    const category = await prisma.locationCategory.upsert({
-      where: { code: catData.code },
-      update: {
-        name: catData.name,
-        description: catData.description,
-        priority: catData.priority,
-        isActive: catData.isActive,
-      },
-      create: catData,
-    });
-    seededCategories[catData.code] = category;
-    console.log(`   - Category upserted: ${catData.code}`);
-  }
+  // Tax rates (demo values)
+  const rates = [
+    { year: currentYear, code: "A", amount: 5.0 },
+    { year: currentYear, code: "B", amount: 3.5 },
+    { year: currentYear, code: "C", amount: 2.0 },
+    { year: previousYear, code: "A", amount: 4.5 },
+    { year: previousYear, code: "B", amount: 3.0 },
+    { year: previousYear, code: "C", amount: 1.75 },
+  ] as const;
 
-  // 3. Seed Tax Rates
-  console.log('💰 Seeding tax rates...');
-  
-  const currentYear = new Date().getFullYear();
-  const admin = seededUsers['admin@hermata.local'];
-
-  const taxRates = [
-    { year: currentYear, cat: 'A', rate: 5.00 },
-    { year: currentYear, cat: 'B', rate: 3.50 },
-    { year: currentYear, cat: 'C', rate: 2.00 },
-    { year: currentYear - 1, cat: 'A', rate: 4.50 },
-    { year: currentYear - 1, cat: 'B', rate: 3.00 },
-    { year: currentYear - 1, cat: 'C', rate: 1.75 },
-  ];
-
-  const seededTaxRates: any = {};
-
-  for (const rate of taxRates) {
-    const category = seededCategories[rate.cat];
+  const rateMap = new Map<string, string>();
+  for (const r of rates) {
+    const category = categories[r.code];
     const taxRate = await prisma.taxRate.upsert({
       where: {
         taxYear_locationCategoryId: {
-          taxYear: rate.year,
+          taxYear: r.year,
           locationCategoryId: category.id,
         },
       },
       update: {
-        ratePerKare: rate.rate,
+        ratePerKare: r.amount,
         isActive: true,
       },
       create: {
-        taxYear: rate.year,
+        taxYear: r.year,
         locationCategoryId: category.id,
-        ratePerKare: rate.rate,
-        createdById: admin.id,
+        ratePerKare: r.amount,
         isActive: true,
+        createdById: admin.id,
       },
     });
-    const key = `${rate.year}-${rate.cat}`;
-    seededTaxRates[key] = taxRate;
-    console.log(`   - Tax Rate upserted: ${key} (${rate.rate} ETB/kare)`);
+    rateMap.set(`${r.year}-${r.code}`, taxRate.id);
   }
 
-  // 4. Seed House Owner Profiles
-  console.log('🏠 Seeding house owner profiles...');
-  
-  const profiles = [
-    {
-      email: 'owner@hermata.local',
-      fullName: 'Demo House Owner',
-      phone: '+251900000001',
-      kebeleIdNumber: 'HK-OWN-001',
-      address: 'Hermata Kebele',
-    },
-    {
-      email: 'owner2@hermata.local',
-      fullName: 'Second House Owner',
-      phone: '+251900000002',
-      kebeleIdNumber: 'HK-OWN-002',
-      address: 'Hermata Kebele',
-    },
-  ];
-
-  const seededProfiles: any = {};
-
-  for (const profile of profiles) {
-    const user = seededUsers[profile.email];
-    const houseOwnerProfile = await prisma.houseOwnerProfile.upsert({
-      where: { userId: user.id },
-      update: {
-        fullName: profile.fullName,
-        phone: profile.phone,
-        kebeleIdNumber: profile.kebeleIdNumber,
-        address: profile.address,
-      },
-      create: {
-        userId: user.id,
-        fullName: profile.fullName,
-        phone: profile.phone,
-        kebeleIdNumber: profile.kebeleIdNumber,
-        address: profile.address,
-      },
-    });
-    seededProfiles[profile.email] = houseOwnerProfile;
-    console.log(`   - Profile upserted: ${profile.fullName}`);
-  }
-
-  // 5. Seed Properties
-  console.log('🏗️ Seeding properties...');
-  
-  const owner1 = seededProfiles['owner@hermata.local'];
-  const owner2 = seededProfiles['owner2@hermata.local'];
-  const manager = seededUsers['manager@hermata.local'];
-
-  const properties = [
-    {
-      ownerId: owner1.id,
-      houseNumber: 'H-001',
-      fileNumber: 'F-001',
+  // Properties
+  const propertyH001 = await prisma.property.create({
+    data: {
+      ownerId: ownerProfile1.id,
+      houseNumber: "H-001",
+      fileNumber: "F-001",
       landSizeKare: 400,
-      locationCategory: 'A',
+      locationCategoryId: categoryA.id,
       ownershipType: OwnershipType.LEASE,
-      status: 'APPROVED',
-      approvedById: admin.id,
+      status: PropertyStatus.APPROVED,
+      approvedById: manager.id,
       approvedAt: new Date(),
     },
-    {
-      ownerId: owner2.id,
-      houseNumber: 'H-002',
-      fileNumber: 'F-002',
+  });
+
+  const propertyH002 = await prisma.property.create({
+    data: {
+      ownerId: ownerProfile2.id,
+      houseNumber: "H-002",
+      fileNumber: "F-002",
       landSizeKare: 250,
-      locationCategory: 'B',
+      locationCategoryId: categoryB.id,
       ownershipType: OwnershipType.OLD_POSSESSION,
-      status: 'SUBMITTED',
+      status: PropertyStatus.APPROVED,
+      approvedById: manager.id,
+      approvedAt: new Date(),
     },
-    {
-      ownerId: owner1.id,
-      houseNumber: 'H-003',
-      fileNumber: 'F-003',
+  });
+
+  const propertyH003 = await prisma.property.create({
+    data: {
+      ownerId: ownerProfile1.id,
+      houseNumber: "H-003",
+      fileNumber: "F-003",
       landSizeKare: 300,
-      locationCategory: 'C',
       ownershipType: OwnershipType.OTHER,
-      status: 'UNDER_REVIEW',
-      reviewedById: manager.id,
+      status: PropertyStatus.SUBMITTED,
+      locationDescription: "Pending worker category assignment",
+    },
+  });
+
+  const propertyH004 = await prisma.property.create({
+    data: {
+      ownerId: ownerProfile2.id,
+      houseNumber: "H-004",
+      fileNumber: "F-004",
+      landSizeKare: 180,
+      locationCategoryId: categoryC.id,
+      ownershipType: OwnershipType.LEASE,
+      status: PropertyStatus.UNDER_REVIEW,
+      reviewedById: worker.id,
       reviewedAt: new Date(),
     },
-  ];
+  });
 
-  const seededProperties: any = {};
+  const propertyH005 = await prisma.property.create({
+    data: {
+      ownerId: ownerProfile1.id,
+      houseNumber: "H-005",
+      fileNumber: "F-005",
+      landSizeKare: 200,
+      locationCategoryId: categoryB.id,
+      ownershipType: OwnershipType.OTHER,
+      status: PropertyStatus.REJECTED,
+      rejectionReason: "Missing valid file reference",
+      reviewedById: worker.id,
+      reviewedAt: new Date(),
+    },
+  });
 
-  for (const prop of properties) {
-    const category = seededCategories[prop.locationCategory];
-    const property = await prisma.property.upsert({
-      where: { houseNumber: prop.houseNumber },
-      update: {
-        status: prop.status as any,
-        locationCategoryId: category.id,
-        landSizeKare: prop.landSizeKare,
-        ownershipType: prop.ownershipType,
-      },
-      create: {
-        ownerId: prop.ownerId,
-        houseNumber: prop.houseNumber,
-        fileNumber: prop.fileNumber,
-        landSizeKare: prop.landSizeKare,
-        locationCategoryId: category.id,
-        ownershipType: prop.ownershipType,
-        status: prop.status as any,
-        approvedById: prop.approvedById,
-        approvedAt: prop.approvedAt,
-        reviewedById: prop.reviewedById,
-        reviewedAt: prop.reviewedAt,
-      },
-    });
-    seededProperties[prop.houseNumber] = property;
-    console.log(`   - Property upserted: ${prop.houseNumber}`);
-  }
-
-  // 6. Seed Property Documents
-  console.log('📄 Seeding property documents...');
-  
-  const propH001 = seededProperties['H-001'];
-  const propH002 = seededProperties['H-002'];
-
-  const documents = [
+  // Property documents
+  const docs = [
     {
-      propertyId: propH001.id,
-      title: 'Ownership Evidence',
-      documentType: 'OWNERSHIP',
-      fileUrl: '/uploads/demo/ownership-evidence.pdf',
-      fileName: 'ownership-evidence.pdf',
+      propertyId: propertyH001.id,
+      title: "Ownership Evidence",
+      fileUrl: "/uploads/demo/ownership-evidence.pdf",
+      fileName: "ownership-evidence.pdf",
+      documentType: "OWNERSHIP_EVIDENCE",
       status: DocumentStatus.APPROVED,
-      uploadedById: seededUsers['owner@hermata.local'].id,
-      reviewedById: admin.id,
+      uploadedById: ownerUser1.id,
+      reviewedById: worker.id,
       reviewedAt: new Date(),
     },
     {
-      propertyId: propH002.id,
-      title: 'Kebele File Reference',
-      documentType: 'FILE_REFERENCE',
-      fileUrl: '/uploads/demo/file-reference.pdf',
-      fileName: 'file-reference.pdf',
-      status: DocumentStatus.PENDING,
-      uploadedById: seededUsers['owner2@hermata.local'].id,
+      propertyId: propertyH001.id,
+      title: "File Reference",
+      fileUrl: "/uploads/demo/file-reference.pdf",
+      fileName: "file-reference.pdf",
+      documentType: "FILE_REFERENCE",
+      status: DocumentStatus.APPROVED,
+      uploadedById: ownerUser1.id,
+      reviewedById: worker.id,
+      reviewedAt: new Date(),
     },
-  ];
+    {
+      propertyId: propertyH002.id,
+      title: "Ownership Evidence",
+      fileUrl: "/uploads/demo/ownership-evidence-h002.pdf",
+      fileName: "ownership-evidence-h002.pdf",
+      documentType: "OWNERSHIP_EVIDENCE",
+      status: DocumentStatus.APPROVED,
+      uploadedById: ownerUser2.id,
+      reviewedById: worker.id,
+      reviewedAt: new Date(),
+    },
+    {
+      propertyId: propertyH002.id,
+      title: "Kebele File Reference",
+      fileUrl: "/uploads/demo/file-reference-h002.pdf",
+      fileName: "file-reference-h002.pdf",
+      documentType: "FILE_REFERENCE",
+      status: DocumentStatus.APPROVED,
+      uploadedById: ownerUser2.id,
+      reviewedById: worker.id,
+      reviewedAt: new Date(),
+    },
+    {
+      propertyId: propertyH003.id,
+      title: "Ownership Evidence",
+      fileUrl: "/uploads/demo/ownership-evidence-h003.pdf",
+      fileName: "ownership-evidence-h003.pdf",
+      documentType: "OWNERSHIP_EVIDENCE",
+      status: DocumentStatus.PENDING,
+      uploadedById: ownerUser1.id,
+    },
+    {
+      propertyId: propertyH004.id,
+      title: "Ownership Evidence",
+      fileUrl: "/uploads/demo/ownership-evidence-h004.pdf",
+      fileName: "ownership-evidence-h004.pdf",
+      documentType: "OWNERSHIP_EVIDENCE",
+      status: DocumentStatus.PENDING,
+      uploadedById: ownerUser2.id,
+    },
+    {
+      propertyId: propertyH004.id,
+      title: "ID Document",
+      fileUrl: "/uploads/demo/id-document-h004.pdf",
+      fileName: "id-document-h004.pdf",
+      documentType: "ID_DOCUMENT",
+      status: DocumentStatus.APPROVED,
+      uploadedById: ownerUser2.id,
+      reviewedById: worker.id,
+      reviewedAt: new Date(),
+    },
+    {
+      propertyId: propertyH005.id,
+      title: "File Reference",
+      fileUrl: "/uploads/demo/file-reference-h005.pdf",
+      fileName: "file-reference-h005.pdf",
+      documentType: "FILE_REFERENCE",
+      status: DocumentStatus.REJECTED,
+      uploadedById: ownerUser1.id,
+      reviewedById: worker.id,
+      reviewedAt: new Date(),
+      rejectionReason: "Missing valid file reference",
+    },
+  ] as const;
 
-  for (const doc of documents) {
-    await prisma.propertyDocument.upsert({
-      where: { id: `demo-doc-${doc.propertyId}-${doc.title.replace(/\s+/g, '-')}` },
-      update: {
-        status: doc.status,
-      },
-      create: {
-        id: `demo-doc-${doc.propertyId}-${doc.title.replace(/\s+/g, '-')}`,
-        propertyId: doc.propertyId,
-        title: doc.title,
-        documentType: doc.documentType,
-        fileUrl: doc.fileUrl,
-        fileName: doc.fileName,
-        status: doc.status,
-        uploadedById: doc.uploadedById,
-        reviewedById: doc.reviewedById,
-        reviewedAt: doc.reviewedAt,
+  for (const d of docs) {
+    await prisma.propertyDocument.create({
+      data: {
+        propertyId: d.propertyId,
+        title: d.title,
+        fileUrl: d.fileUrl,
+        fileName: d.fileName,
+        documentType: d.documentType,
+        mimeType: "application/pdf",
+        status: d.status,
+        uploadedById: d.uploadedById,
+        reviewedById: d.reviewedById ?? null,
+        reviewedAt: d.reviewedAt ?? null,
+        rejectionReason: d.rejectionReason ?? null,
       },
     });
-    console.log(`   - Document seeded for property: ${doc.propertyId}`);
   }
 
-  // 7. Seed Assessments
-  console.log('🧾 Seeding assessments...');
-  
-  const propH001Approved = seededProperties['H-001'];
-  const taxRateA = seededTaxRates[`${currentYear}-A`];
-  const taxRateAPrev = seededTaxRates[`${currentYear - 1}-A`];
+  // Assessments
+  const rateAForCurrent = rateMap.get(`${currentYear}-A`);
+  const rateBForCurrent = rateMap.get(`${currentYear}-B`);
+  const rateAForPrevious = rateMap.get(`${previousYear}-A`);
+  if (!rateAForCurrent || !rateBForCurrent || !rateAForPrevious) {
+    throw new Error("Required tax rate records were not created");
+  }
 
-  const assessments = [
-    {
-      propertyId: propH001Approved.id,
-      taxRateId: taxRateA.id,
+  const assessmentH001Paid = await prisma.taxAssessment.create({
+    data: {
+      propertyId: propertyH001.id,
+      taxRateId: rateAForCurrent,
       taxYear: currentYear,
-      landSizeKare: 400,
-      ratePerKare: 5.00,
-      baseAmount: 2000.00,
+      landSizeKare: propertyH001.landSizeKare,
+      ratePerKare: 5.0,
+      baseAmount: 2000.0,
       penaltyAmount: 0,
       previousBalance: 0,
-      totalAmount: 2000.00,
+      totalAmount: 2000.0,
+      status: AssessmentStatus.PAID,
+      issuedById: manager.id,
+      issuedAt: new Date(),
+      note: "Demo paid assessment",
+    },
+  });
+
+  const assessmentH002Issued = await prisma.taxAssessment.create({
+    data: {
+      propertyId: propertyH002.id,
+      taxRateId: rateBForCurrent,
+      taxYear: currentYear,
+      landSizeKare: propertyH002.landSizeKare,
+      ratePerKare: 3.5,
+      baseAmount: 875.0,
+      penaltyAmount: 0,
+      previousBalance: 0,
+      totalAmount: 875.0,
       status: AssessmentStatus.ISSUED,
       issuedById: manager.id,
       issuedAt: new Date(),
+      note: "Demo issued unpaid assessment",
     },
-    {
-      propertyId: propH001Approved.id,
-      taxRateId: taxRateAPrev.id,
-      taxYear: currentYear - 1,
-      landSizeKare: 400,
-      ratePerKare: 4.50,
-      baseAmount: 1800.00,
-      penaltyAmount: 0,
+  });
+
+  await prisma.taxAssessment.create({
+    data: {
+      propertyId: propertyH001.id,
+      taxRateId: rateAForPrevious,
+      taxYear: previousYear,
+      landSizeKare: propertyH001.landSizeKare,
+      ratePerKare: 4.5,
+      baseAmount: 1800.0,
+      penaltyAmount: 150.0,
       previousBalance: 0,
-      totalAmount: 1800.00,
-      status: AssessmentStatus.PAID,
+      totalAmount: 1950.0,
+      status: AssessmentStatus.CANCELLED,
       issuedById: manager.id,
-      issuedAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
+      issuedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90),
+      cancelledById: manager.id,
+      cancelledAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30),
+      cancellationReason: "Demo cancelled assessment",
     },
-  ];
+  });
 
-  const seededAssessments: any = {};
-
-  for (const assess of assessments) {
-    const assessment = await prisma.taxAssessment.upsert({
-      where: {
-        propertyId_taxYear: {
-          propertyId: assess.propertyId,
-          taxYear: assess.taxYear,
-        },
-      },
-      update: {
-        status: assess.status,
-      },
-      create: assess,
-    });
-    seededAssessments[`${assess.propertyId}-${assess.taxYear}`] = assessment;
-    console.log(`   - Assessment upserted for property H-001, Year ${assess.taxYear}`);
-  }
-
-  // 8. Seed Payments
-  console.log('💳 Seeding payments...');
-  
-  const assessmentPrev = seededAssessments[`${propH001Approved.id}-${currentYear - 1}`];
-
-  const payment = await prisma.payment.upsert({
-    where: { id: `demo-payment-${assessmentPrev.id}` },
-    update: {
-      status: PaymentStatus.VERIFIED,
-    },
-    create: {
-      id: `demo-payment-${assessmentPrev.id}`,
-      assessmentId: assessmentPrev.id,
+  // Payments
+  const verifiedPayment = await prisma.payment.create({
+    data: {
+      assessmentId: assessmentH001Paid.id,
+      payerId: ownerUser1.id,
       method: PaymentMethod.SINQEE_BANK,
       status: PaymentStatus.VERIFIED,
-      amount: assessmentPrev.totalAmount,
-      paidAt: new Date(assessmentPrev.issuedAt!.getTime() + 2 * 24 * 60 * 60 * 1000),
-      referenceNumber: 'SINQEE-DEMO-001',
-      bankName: 'Sinqee Bank',
-      bankBranch: 'Hermata Branch',
-      receiptFileUrl: '/uploads/demo/sinqee-receipt.pdf',
-      verifiedById: manager.id,
+      amount: assessmentH001Paid.totalAmount,
+      paidAt: new Date(),
+      referenceNumber: "SINQEE-DEMO-001",
+      bankName: "Sinqee Bank",
+      bankBranch: "Hermata Branch",
+      receiptFileUrl: "/uploads/demo/sinqee-receipt.pdf",
+      receiptFileName: "sinqee-receipt.pdf",
+      verifiedById: worker.id,
       verifiedAt: new Date(),
     },
   });
-  console.log(`   - Payment seeded for assessment ${assessmentPrev.id}`);
 
-  // 9. Seed Confirmation
-  console.log('🎗️ Seeding confirmations...');
-  
-  await prisma.kebeleConfirmation.upsert({
-    where: { paymentId: payment.id },
-    update: {
-      status: ConfirmationStatus.ISSUED,
+  await prisma.payment.create({
+    data: {
+      assessmentId: assessmentH002Issued.id,
+      payerId: ownerUser2.id,
+      method: PaymentMethod.SINQEE_BANK,
+      status: PaymentStatus.UNDER_REVIEW,
+      amount: assessmentH002Issued.totalAmount,
+      paidAt: new Date(),
+      referenceNumber: "SINQEE-DEMO-002",
+      bankName: "Sinqee Bank",
+      bankBranch: "Hermata Branch",
+      receiptFileUrl: "/uploads/demo/sinqee-receipt-pending.pdf",
+      receiptFileName: "sinqee-receipt-pending.pdf",
     },
-    create: {
-      paymentId: payment.id,
-      confirmationNumber: `KHC-${currentYear - 1}-000001`,
+  });
+
+  // Confirmation
+  await prisma.kebeleConfirmation.create({
+    data: {
+      paymentId: verifiedPayment.id,
+      confirmationNumber: `KHC-${currentYear}-000001`,
       status: ConfirmationStatus.ISSUED,
       issuedById: manager.id,
       issuedAt: new Date(),
-      note: 'Demo confirmation for paid property tax',
+      note: "Demo confirmation for paid property tax",
     },
   });
-  console.log(`   - Confirmation seeded for payment ${payment.id}`);
 
-  console.log('✅ Seeding completed successfully!');
+  console.log("Demo workflow seed completed.");
 }
 
 main()
-  .catch((e) => {
-    console.error('❌ Seeding failed:');
-    console.error(e);
+  .catch((error) => {
+    console.error("Seed failed:", error);
     process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });

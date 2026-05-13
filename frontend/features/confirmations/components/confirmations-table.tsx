@@ -4,7 +4,7 @@ import { BasicDataGrid } from "@/components/table/BasicDataGridTable";
 import { KebeleConfirmation } from "../types";
 import { ConfirmationStatusBadge } from "./confirmation-status-badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { PaymentMethodBadge } from "@/features/payments/components/payment-method-badge";
 
 import { type Dictionary } from "@/lib/get-dictionary";
@@ -27,6 +27,8 @@ export function ConfirmationsTable({
   dict,
 }: ConfirmationsTableProps) {
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
 
   const columns = [
     {
@@ -111,7 +113,7 @@ export function ConfirmationsTable({
       totalItems={meta?.total || 0}
       onPageChange={onPageChange}
       onSearch={onSearch}
-      onView={(row: KebeleConfirmation) => router.push(`/confirmations/${row.id}`)}
+      onView={(row: KebeleConfirmation) => router.push(`/${lang}/confirmations/${row.id}`)}
       searchPlaceholder={dict.common?.search || "Search..."}
       showAddButton={false}
     />

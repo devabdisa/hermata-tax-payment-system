@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { assessmentsApi } from "@/features/assessments/api";
 import { paymentsApi } from "../api";
 import { SinqeeReceiptPaymentForm } from "./sinqee-receipt-payment-form";
@@ -21,6 +21,8 @@ interface AssessmentPaymentPageClientProps {
 
 export function AssessmentPaymentPageClient({ assessmentId, dict }: AssessmentPaymentPageClientProps) {
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const [assessment, setAssessment] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,7 +34,7 @@ export function AssessmentPaymentPageClient({ assessmentId, dict }: AssessmentPa
         setAssessment(response.data);
       } catch (error: any) {
         toast.error(error.message || "Failed to fetch assessment");
-        router.push("/assessments");
+        router.push(`/${lang}/assessments`);
       } finally {
         setIsLoading(false);
       }
@@ -46,7 +48,7 @@ export function AssessmentPaymentPageClient({ assessmentId, dict }: AssessmentPa
     try {
       await paymentsApi.createSinqeeReceipt(formData);
       toast.success("Payment receipt submitted for review!");
-      router.push(`/assessments/${assessmentId}`);
+      router.push(`/${lang}/assessments/${assessmentId}`);
     } catch (error: any) {
       toast.error(error.message || "Failed to submit payment");
     } finally {
@@ -60,7 +62,7 @@ export function AssessmentPaymentPageClient({ assessmentId, dict }: AssessmentPa
       const response = await paymentsApi.initiateChapa(
         { 
           assessmentId,
-          returnUrl: `${window.location.origin}/payments`,
+          returnUrl: `${window.location.origin}/${lang}/payments`,
           callbackUrl: `${process.env.NEXT_PUBLIC_API_URL}/payments/chapa/webhook`
         }
       );
@@ -95,7 +97,7 @@ export function AssessmentPaymentPageClient({ assessmentId, dict }: AssessmentPa
             </div>
             <h2 className="text-2xl font-bold text-emerald-900">{dict.status.PAID}</h2>
             <p className="text-emerald-800">This assessment has already been fully paid.</p>
-            <Button onClick={() => router.push(`/assessments/${assessmentId}`)}>{dict.common.details}</Button>
+            <Button onClick={() => router.push(`/${lang}/assessments/${assessmentId}`)}>{dict.common.details}</Button>
           </CardContent>
         </Card>
       </div>

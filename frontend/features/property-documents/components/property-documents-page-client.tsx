@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { propertyDocumentsApi } from "../api";
 import { PropertyDocument, DocumentStatus } from "../types";
 import { DocumentUploadForm } from "./document-upload-form";
@@ -20,6 +20,8 @@ interface PropertyDocumentsPageClientProps {
 
 export function PropertyDocumentsPageClient({ propertyId }: PropertyDocumentsPageClientProps) {
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const [property, setProperty] = useState<Property | null>(null);
   const [documents, setDocuments] = useState<PropertyDocument[]>([]);
   const [isLoadingProperty, setIsLoadingProperty] = useState(true);
@@ -38,7 +40,7 @@ export function PropertyDocumentsPageClient({ propertyId }: PropertyDocumentsPag
       setProperty(response.data);
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch property details");
-      router.push("/properties");
+      router.push(`/${lang}/properties`);
     } finally {
       setIsLoadingProperty(false);
     }
@@ -111,7 +113,7 @@ export function PropertyDocumentsPageClient({ propertyId }: PropertyDocumentsPag
   return (
     <div className="space-y-6 pb-12">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.push(`/properties/${propertyId}`)}>
+        <Button variant="ghost" size="icon" onClick={() => router.push(`/${lang}/properties/${propertyId}`)}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>

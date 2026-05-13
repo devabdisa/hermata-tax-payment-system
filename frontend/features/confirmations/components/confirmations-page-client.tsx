@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { confirmationsApi } from "../api";
 import { KebeleConfirmation, ConfirmationStatus } from "../types";
 import { ConfirmationsTable } from "./confirmations-table";
@@ -25,6 +25,8 @@ interface ConfirmationsPageClientProps {
 
 export function ConfirmationsPageClient({ dict }: ConfirmationsPageClientProps) {
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const [data, setData] = useState<KebeleConfirmation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [meta, setMeta] = useState<any>(null);
@@ -97,7 +99,7 @@ export function ConfirmationsPageClient({ dict }: ConfirmationsPageClientProps) 
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button onClick={() => router.push("/confirmations/new")} className="gap-2 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md">
+          <Button onClick={() => router.push(`/${lang}/confirmations/new`)} className="gap-2 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md">
             <PlusCircle className="h-4 w-4" />
             {dict.confirmations.issueConfirmation}
           </Button>

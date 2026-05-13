@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createConfirmationSchema } from "../schema";
@@ -27,6 +27,8 @@ interface IssueConfirmationPageClientProps {
 
 export function IssueConfirmationPageClient({ dict }: IssueConfirmationPageClientProps) {
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoadingPayments, setIsLoadingPayments] = useState(true);
@@ -74,7 +76,7 @@ export function IssueConfirmationPageClient({ dict }: IssueConfirmationPageClien
     try {
       const response = await confirmationsApi.createConfirmation(data);
       toast.success("Confirmation issued successfully!");
-      router.push(`/confirmations/${response.data.id}`);
+      router.push(`/${lang}/confirmations/${response.data.id}`);
     } catch (error: any) {
       toast.error(error.message || "Failed to issue confirmation");
     } finally {

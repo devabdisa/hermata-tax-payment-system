@@ -9,7 +9,7 @@ import { type Dictionary } from "@/lib/get-dictionary";
 import { PageShell } from "@/components/ui/page-shell";
 import { PageHeader } from "@/components/ui/page-header";
 import { CreditCard, RefreshCw } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 interface PaymentsPageClientProps {
   dict: Dictionary;
@@ -17,6 +17,8 @@ interface PaymentsPageClientProps {
 
 export function PaymentsPageClient({ dict }: PaymentsPageClientProps) {
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const [data, setData] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [meta, setMeta] = useState<any>(null);
@@ -54,8 +56,8 @@ export function PaymentsPageClient({ dict }: PaymentsPageClientProps) {
         description={dict.payments.paymentProcessing || "Track tax payments and verify transactions."}
         icon={CreditCard}
         breadcrumbs={[
-          { label: dict.common.dashboard, href: "/dashboard" },
-          { label: dict.payments.title, href: "/payments" }
+          { label: dict.common.dashboard, href: `/${lang}/dashboard` },
+          { label: dict.payments.title, href: `/${lang}/payments` }
         ]}
         actions={[
           {
@@ -74,7 +76,7 @@ export function PaymentsPageClient({ dict }: PaymentsPageClientProps) {
         isLoading={isLoading}
         onPageChange={setCurrentPage}
         onSearch={setSearch}
-        onView={(row) => router.push(`/payments/${row.id}`)}
+        onView={(row) => router.push(`/${lang}/payments/${row.id}`)}
         dict={dict}
       />
     </PageShell>

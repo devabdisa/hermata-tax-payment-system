@@ -10,7 +10,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function EditAssessmentPage() {
-  const { id } = useParams();
+  const { id, lang } = useParams();
   const router = useRouter();
   const [assessment, setAssessment] = useState<TaxAssessment | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,13 +22,13 @@ export default function EditAssessmentPage() {
       const res = await assessmentsApi.getAssessment(id as string);
       if (res.data.status !== "DRAFT") {
         toast.error("Only draft assessments can be edited");
-        router.push(`/assessments/${id}`);
+        router.push(`/${lang as string}/assessments/${id}`);
         return;
       }
       setAssessment(res.data);
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch assessment");
-      router.push("/assessments");
+      router.push(`/${lang as string}/assessments`);
     } finally {
       setIsLoading(false);
     }
@@ -43,7 +43,7 @@ export default function EditAssessmentPage() {
     try {
       await assessmentsApi.updateAssessment(id as string, data);
       toast.success("Assessment updated successfully");
-      router.push(`/assessments/${id}`);
+      router.push(`/${lang as string}/assessments/${id}`);
     } catch (error: any) {
       toast.error(error.message || "Failed to update assessment");
     } finally {

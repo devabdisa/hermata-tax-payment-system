@@ -13,6 +13,7 @@ export default function PropertyDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
+  const lang = params.lang as string;
   
   const [property, setProperty] = useState<Property | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,7 +26,7 @@ export default function PropertyDetailPage() {
       setProperty(response.data);
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch property details");
-      router.push("/properties");
+      router.push(`/${lang}/properties`);
     } finally {
       setIsLoading(false);
     }
@@ -76,7 +77,7 @@ export default function PropertyDetailPage() {
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push("/properties")}>
+          <Button variant="ghost" size="icon" onClick={() => router.push(`/${lang}/properties`)}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-3xl font-bold tracking-tight">Property Details</h1>
@@ -90,13 +91,13 @@ export default function PropertyDetailPage() {
             </Button>
           ) : null}
           
-          <Button variant="outline" className="gap-2" onClick={() => router.push(`/properties/${id}/edit`)}>
+          <Button variant="outline" className="gap-2" onClick={() => router.push(`/${lang}/properties/${id}/edit`)}>
             <Edit className="h-4 w-4" />
             Edit
           </Button>
           
           {(property.status === "SUBMITTED" || property.status === "UNDER_REVIEW") && (
-            <Button className="gap-2 bg-primary" onClick={() => router.push(`/properties/${id}/review`)}>
+            <Button className="gap-2 bg-primary" onClick={() => router.push(`/${lang}/properties/${id}/review`)}>
               <ShieldCheck className="h-4 w-4" />
               Review
             </Button>

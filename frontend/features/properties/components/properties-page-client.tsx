@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { propertiesApi } from "../api";
 import { Property, PropertyStatus } from "../types";
 import { PropertiesTable } from "./properties-table";
@@ -17,6 +17,8 @@ interface PropertiesPageClientProps {
 
 export function PropertiesPageClient({ dict }: PropertiesPageClientProps) {
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const [data, setData] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
@@ -54,13 +56,13 @@ export function PropertiesPageClient({ dict }: PropertiesPageClientProps) {
         description="Manage house records, file numbers, ownership type, land size, and approval status."
         icon={Home}
         breadcrumbs={[
-          { label: dict.common.dashboard, href: "/dashboard" },
-          { label: dict.common.properties, href: "/properties" }
+          { label: dict.common.dashboard, href: `/${lang}/dashboard` },
+          { label: dict.common.properties, href: `/${lang}/properties` }
         ]}
         actions={[
           {
-            label: `Add ${dict.common.properties}`,
-            onClick: () => router.push("/properties/new"),
+            label: "Add Property",
+            onClick: () => router.push(`/${lang}/properties/new`),
             icon: Plus,
             variant: "default"
           }
@@ -75,8 +77,8 @@ export function PropertiesPageClient({ dict }: PropertiesPageClientProps) {
         currentPage={currentPage}
         onPageChange={setCurrentPage}
         onSearch={setSearch}
-        onView={(p) => router.push(`/properties/${p.id}`)}
-        onEdit={(p) => router.push(`/properties/${p.id}/edit`)}
+        onView={(p) => router.push(`/${lang}/properties/${p.id}`)}
+        onEdit={(p) => router.push(`/${lang}/properties/${p.id}/edit`)}
         dict={dict}
       />
     </PageShell>

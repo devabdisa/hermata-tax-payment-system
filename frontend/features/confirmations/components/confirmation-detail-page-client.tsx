@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { confirmationsApi } from "../api";
 import { KebeleConfirmation } from "../types";
 import { ConfirmationPrintView } from "./confirmation-print-view";
@@ -31,6 +31,8 @@ interface ConfirmationDetailPageClientProps {
 
 export function ConfirmationDetailPageClient({ confirmationId, dict }: ConfirmationDetailPageClientProps) {
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const [confirmation, setConfirmation] = useState<KebeleConfirmation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isActionLoading, setIsActionLoading] = useState(false);
@@ -43,7 +45,7 @@ export function ConfirmationDetailPageClient({ confirmationId, dict }: Confirmat
       setConfirmation(response.data);
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch confirmation details");
-      router.push("/confirmations");
+      router.push(`/${lang}/confirmations`);
     } finally {
       setIsLoading(false);
     }
@@ -97,7 +99,7 @@ export function ConfirmationDetailPageClient({ confirmationId, dict }: Confirmat
       {/* Action Header - Hidden on Print */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
         <div className="space-y-2">
-          <Button variant="ghost" size="sm" onClick={() => router.push("/confirmations")} className="gap-2 -ml-2 text-muted-foreground hover:text-foreground">
+          <Button variant="ghost" size="sm" onClick={() => router.push(`/${lang}/confirmations`)} className="gap-2 -ml-2 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> {dict.confirmations.title}
           </Button>
           <div className="flex items-center gap-3">

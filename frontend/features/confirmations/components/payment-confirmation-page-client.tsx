@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { confirmationsApi } from "@/features/confirmations/api";
 import { paymentsApi } from "@/features/payments/api";
 import { KebeleConfirmation } from "@/features/confirmations/types";
@@ -21,6 +21,8 @@ interface PaymentConfirmationPageClientProps {
 
 export function PaymentConfirmationPageClient({ paymentId, dict }: PaymentConfirmationPageClientProps) {
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const [payment, setPayment] = useState<Payment | null>(null);
   const [confirmation, setConfirmation] = useState<KebeleConfirmation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,7 +54,7 @@ export function PaymentConfirmationPageClient({ paymentId, dict }: PaymentConfir
     try {
       const response = await confirmationsApi.createConfirmation({ paymentId });
       toast.success("Confirmation issued successfully!");
-      router.push(`/confirmations/${response.data.id}`);
+      router.push(`/${lang}/confirmations/${response.data.id}`);
     } catch (error: any) {
       toast.error(error.message || "Failed to issue confirmation");
     } finally {
@@ -95,7 +97,7 @@ export function PaymentConfirmationPageClient({ paymentId, dict }: PaymentConfir
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{dict.confirmations.confirmationNumber}</p>
                   <p className="font-mono font-bold text-xl text-primary">{confirmation.confirmationNumber}</p>
                 </div>
-                <Button onClick={() => router.push(`/confirmations/${confirmation.id}`)} size="lg" className="rounded-xl shadow-md">
+                <Button onClick={() => router.push(`/${lang}/confirmations/${confirmation.id}`)} size="lg" className="rounded-xl shadow-md">
                    <FileText className="mr-2 h-5 w-5" />
                    {dict.common.details}
                 </Button>
@@ -165,7 +167,7 @@ export function PaymentConfirmationPageClient({ paymentId, dict }: PaymentConfir
            <p className="text-rose-800 text-lg mb-8 max-w-md mx-auto">
              Only payments with <span className="font-bold">VERIFIED</span> status can receive kebele confirmation. This payment is currently <span className="font-bold uppercase underline decoration-2">{(dict.status as any)?.[payment.status] || payment.status}</span>.
            </p>
-           <Button variant="outline" onClick={() => router.push(`/payments/${paymentId}`)} className="rounded-xl border-rose-200 text-rose-700 hover:bg-rose-50">
+           <Button variant="outline" onClick={() => router.push(`/${lang}/payments/${paymentId}`)} className="rounded-xl border-rose-200 text-rose-700 hover:bg-rose-50">
               Return to Payment Review
            </Button>
         </Card>

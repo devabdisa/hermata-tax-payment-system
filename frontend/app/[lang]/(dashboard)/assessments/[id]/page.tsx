@@ -10,7 +10,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AssessmentDetailPage() {
-  const { id } = useParams();
+  const { id, lang } = useParams();
   const router = useRouter();
   const [assessment, setAssessment] = useState<TaxAssessment | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,7 +22,7 @@ export default function AssessmentDetailPage() {
       setAssessment(res.data);
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch assessment");
-      router.push("/assessments");
+      router.push(`/${lang as string}/assessments`);
     } finally {
       setIsLoading(false);
     }
@@ -45,7 +45,7 @@ export default function AssessmentDetailPage() {
   return (
     <div className="space-y-6 pb-12">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.push("/assessments")}>
+        <Button variant="ghost" size="icon" onClick={() => router.push(`/${lang as string}/assessments`)}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <span className="text-sm text-muted-foreground">Back to List</span>

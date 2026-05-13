@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { assessmentsApi } from "../api";
 import { TaxAssessment, AssessmentStatus } from "../types";
 import { AssessmentsTable } from "./assessments-table";
@@ -18,6 +18,8 @@ interface AssessmentsPageClientProps {
 
 function AssessmentsPageContent({ dict }: AssessmentsPageClientProps) {
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const searchParams = useSearchParams();
   const [assessments, setAssessments] = useState<TaxAssessment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,13 +62,13 @@ function AssessmentsPageContent({ dict }: AssessmentsPageClientProps) {
         description="Manage yearly house tax assessments and official calculation snapshots."
         icon={Calculator}
         breadcrumbs={[
-          { label: dict.common.dashboard, href: "/dashboard" },
-          { label: dict.common.assessments, href: "/assessments" }
+          { label: dict.common.dashboard, href: `/${lang}/dashboard` },
+          { label: dict.common.assessments, href: `/${lang}/assessments` }
         ]}
         actions={[
           {
             label: `Create ${dict.common.assessments}`,
-            onClick: () => router.push("/assessments/new"),
+            onClick: () => router.push(`/${lang}/assessments/new`),
             icon: Plus,
             variant: "default"
           }

@@ -14,6 +14,7 @@ export default function ReviewPropertyPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
+  const lang = params.lang as string;
   
   const [property, setProperty] = useState<Property | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +27,7 @@ export default function ReviewPropertyPage() {
       setProperty(response.data);
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch property details");
-      router.push("/properties");
+      router.push(`/${lang}/properties`);
     } finally {
       setIsLoading(false);
     }
@@ -54,7 +55,7 @@ export default function ReviewPropertyPage() {
     try {
       await propertiesApi.approveProperty(id);
       toast.success("Property approved successfully");
-      router.push(`/properties/${id}`);
+      router.push(`/${lang}/properties/${id}`);
     } catch (error: any) {
       toast.error(error.message || "Failed to approve property");
     } finally {
@@ -67,7 +68,7 @@ export default function ReviewPropertyPage() {
     try {
       await propertiesApi.rejectProperty(id, data);
       toast.success("Property rejected with feedback");
-      router.push(`/properties/${id}`);
+      router.push(`/${lang}/properties/${id}`);
     } catch (error: any) {
       toast.error(error.message || "Failed to reject property");
     } finally {

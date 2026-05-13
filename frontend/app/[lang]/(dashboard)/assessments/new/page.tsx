@@ -2,7 +2,7 @@
 
 import { AssessmentForm } from "@/features/assessments/components/assessment-form";
 import { assessmentsApi } from "@/features/assessments/api";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 
 function NewAssessmentContent() {
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -20,7 +22,7 @@ function NewAssessmentContent() {
     try {
       const res = await assessmentsApi.createAssessment(data);
       toast.success("Assessment generated successfully");
-      router.push(`/assessments/${res.data.id}`);
+      router.push(`/${lang}/assessments/${res.data.id}`);
     } catch (error: any) {
       toast.error(error.message || "Failed to create assessment");
     } finally {

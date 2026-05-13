@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { paymentsApi } from "../api";
 import { Payment } from "../types";
 import { PaymentVerificationForm } from "./payment-verification-form";
@@ -26,6 +26,8 @@ interface PaymentDetailPageClientProps {
 
 export function PaymentDetailPageClient({ paymentId, dict }: PaymentDetailPageClientProps) {
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const [payment, setPayment] = useState<Payment | null>(null);
   const [confirmation, setConfirmation] = useState<KebeleConfirmation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,7 +43,7 @@ export function PaymentDetailPageClient({ paymentId, dict }: PaymentDetailPageCl
       setConfirmation(confRes?.data || null);
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch payment details");
-      router.push("/payments");
+      router.push(`/${lang}/payments`);
     } finally {
       setIsLoading(false);
     }
@@ -94,7 +96,7 @@ export function PaymentDetailPageClient({ paymentId, dict }: PaymentDetailPageCl
     <div className="space-y-8 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-2">
-          <Button variant="ghost" size="sm" onClick={() => router.push("/payments")} className="gap-2 -ml-2 text-muted-foreground hover:text-foreground">
+          <Button variant="ghost" size="sm" onClick={() => router.push(`/${lang}/payments`)} className="gap-2 -ml-2 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> {dict.common.payments}
           </Button>
           <div className="flex items-center gap-3">
@@ -187,7 +189,7 @@ export function PaymentDetailPageClient({ paymentId, dict }: PaymentDetailPageCl
                     variant="outline" 
                     size="sm" 
                     className="w-full bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50 rounded-lg"
-                    onClick={() => router.push(`/confirmations/${confirmation.id}`)}
+                    onClick={() => router.push(`/${lang}/confirmations/${confirmation.id}`)}
                    >
                      <FileText className="mr-2 h-3.5 w-3.5" />
                      {dict.confirmations.viewConfirmation}
@@ -201,7 +203,7 @@ export function PaymentDetailPageClient({ paymentId, dict }: PaymentDetailPageCl
                     <Button 
                       size="sm" 
                       className="w-full bg-primary hover:bg-primary/90 text-white shadow-sm rounded-lg"
-                      onClick={() => router.push(`/payments/${paymentId}/confirmation`)}
+                      onClick={() => router.push(`/${lang}/payments/${paymentId}/confirmation`)}
                     >
                       <ShieldCheck className="mr-2 h-3.5 w-3.5" />
                       {dict.confirmations.issueConfirmation}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { TaxAssessment } from "../types";
 import { assessmentsApi } from "../api";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,8 @@ interface AssessmentActionsProps {
 
 export function AssessmentActions({ assessment, onRefresh, variant = "inline" }: AssessmentActionsProps) {
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [cancellationReason, setCancellationReason] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -106,13 +108,13 @@ export function AssessmentActions({ assessment, onRefresh, variant = "inline" }:
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuItem onClick={() => router.push(`/assessments/${assessment.id}`)}>
+          <DropdownMenuItem onClick={() => router.push(`/${lang}/assessments/${assessment.id}`)}>
             <Eye className="mr-2 h-4 w-4" /> View Details
           </DropdownMenuItem>
           
           {isDraft && (
             <>
-              <DropdownMenuItem onClick={() => router.push(`/assessments/${assessment.id}/edit`)}>
+              <DropdownMenuItem onClick={() => router.push(`/${lang}/assessments/${assessment.id}/edit`)}>
                 <Edit className="mr-2 h-4 w-4" /> Edit Assessment
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleRecalculate} disabled={isLoading}>
@@ -168,13 +170,13 @@ export function AssessmentActions({ assessment, onRefresh, variant = "inline" }:
 
   return (
     <div className="flex items-center gap-2">
-      <Button size="sm" variant="outline" onClick={() => router.push(`/assessments/${assessment.id}`)}>
+      <Button size="sm" variant="outline" onClick={() => router.push(`/${lang}/assessments/${assessment.id}`)}>
         <Eye className="h-4 w-4 mr-1" /> View
       </Button>
       
       {isDraft && (
         <>
-          <Button size="sm" variant="outline" onClick={() => router.push(`/assessments/${assessment.id}/edit`)}>
+          <Button size="sm" variant="outline" onClick={() => router.push(`/${lang}/assessments/${assessment.id}/edit`)}>
             <Edit className="h-4 w-4 mr-1" /> Edit
           </Button>
           <Button size="sm" variant="default" onClick={handleIssue} disabled={isLoading}>

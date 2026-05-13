@@ -35,13 +35,24 @@ export const authMiddleware = catchAsync(
 
       if (authHeader?.startsWith("Bearer ")) {
         sessionToken = authHeader.substring(7);
-      } else if (cookieHeader) {
-        const cookies = cookieHeader.split(";").reduce((acc, cookie) => {
-          const [name, value] = cookie.trim().split("=");
-          acc[name] = decodeURIComponent(value || ""); // Add decoding
-          return acc;
-        }, {} as Record<string, string>);
-        
+      } else {
+        const parsedCookies = (req as Request & { cookies?: Record<string, string> }).cookies ?? {};
+        const cookies: Record<string, string> = { ...parsedCookies };
+
+        // Fallback parser for raw cookie header (keeps full value even when it contains '=')
+        if (cookieHeader) {
+          for (const rawCookie of cookieHeader.split(";")) {
+            const trimmedCookie = rawCookie.trim();
+            const separatorIndex = trimmedCookie.indexOf("=");
+            if (separatorIndex <= 0) continue;
+            const cookieName = trimmedCookie.slice(0, separatorIndex);
+            const cookieValue = trimmedCookie.slice(separatorIndex + 1);
+            if (!(cookieName in cookies)) {
+              cookies[cookieName] = decodeURIComponent(cookieValue || "");
+            }
+          }
+        }
+
         const configuredCookieName =
           process.env.BETTER_AUTH_SESSION_COOKIE_NAME || "better-auth.session-token";
         sessionToken = 
