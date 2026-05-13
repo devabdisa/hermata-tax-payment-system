@@ -326,10 +326,9 @@ export class PaymentsService {
       txRef,
       callbackUrl,
       returnUrl,
-      title: `Kebele Tax – House #${assessment.property?.houseNumber || ""}`,
+      title: `Kebele Tax - House #${assessment.property?.houseNumber || ""}`,
       description: `Tax Year ${assessment.taxYear}`,
     });
-
     const payment = await prisma.payment.create({
       data: {
         assessmentId: data.assessmentId,
@@ -338,14 +337,14 @@ export class PaymentsService {
         status: PaymentStatus.PENDING,
         amount: new Prisma.Decimal(amount),
         txRef,
-        chapaCheckoutUrl: chapaResult.checkoutUrl,
+        chapaCheckoutUrl: chapaResult?.checkoutUrl || null,
         returnUrl,
         callbackUrl,
       },
       include: PAYMENT_INCLUDE,
     });
 
-    return { payment, checkoutUrl: chapaResult.checkoutUrl, txRef };
+    return { payment, checkoutUrl: chapaResult?.checkoutUrl || null, txRef };
   }
 
   // ----------------------------------------------------------------
@@ -413,3 +412,4 @@ export class PaymentsService {
 }
 
 export const paymentsService = new PaymentsService();
+

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as propertyOwnersController from "./property-owners.controller";
 import { validate } from "../../middleware/validate.middleware";
-import { createPropertyOwnerSchema, updatePropertyOwnerSchema, propertyOwnerQuerySchema } from "./property-owners.validation";
+import { createPropertyOwnerSchema, updatePropertyOwnerSchema, propertyOwnerQuerySchema, upsertMyPropertyOwnerSchema } from "./property-owners.validation";
 import { authorize } from "../../middleware/authorize.middleware";
 import { PERMISSIONS } from "../../constants/permissions";
 
@@ -12,6 +12,10 @@ router.get("/",
   validate({ query: propertyOwnerQuerySchema }), 
   propertyOwnersController.listOwners
 );
+
+router.get("/me", propertyOwnersController.getMyOwnerProfile);
+
+router.put("/me", validate({ body: upsertMyPropertyOwnerSchema }), propertyOwnersController.upsertMyOwnerProfile);
 
 router.get("/:id", 
   authorize(PERMISSIONS.PROPERTY_OWNERS_VIEW),

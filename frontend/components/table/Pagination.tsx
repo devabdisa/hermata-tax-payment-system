@@ -29,8 +29,8 @@ export const renderPageNumbers = (
   const showLastPage = endPage < totalPages;
   const showEllipsesAfter = endPage < totalPages - 1;
 
-  const startItem = (currentPage - 1) * pageSize + 1;
-  const endItem = Math.min(currentPage * pageSize, totalItems);
+  const startItem = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const endItem = totalItems === 0 ? 0 : Math.min(currentPage * pageSize, totalItems);
   const t = { common: { pagination: { showing: 'Showing', to: 'to', of: 'of', results: 'results', previous: 'Previous', next: 'Next', totalItems: 'Total Items' } } };
   const paginationTranslations = t?.common?.pagination;
 

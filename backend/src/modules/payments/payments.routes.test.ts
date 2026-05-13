@@ -25,6 +25,10 @@ describe('Payments API Endpoints', () => {
   let adminAuthHeader: string;
   let assessmentId: string;
   let paymentId: string;
+  let taxRateId: string;
+  let propertyId: string;
+  let ownerId: string;
+  let categoryId: string;
 
   beforeAll(async () => {
     const adminSession = await createTestSession(prisma, UserRole.ADMIN);
@@ -34,11 +38,13 @@ describe('Payments API Endpoints', () => {
     const category = await prisma.locationCategory.create({
       data: { name: 'Payment Test Cat', code: `CAT-P-${Date.now()}` }
     });
+    categoryId = category.id;
 
     const userSession = await createTestSession(prisma, UserRole.USER);
     const owner = await prisma.houseOwnerProfile.create({
       data: { userId: userSession.user.id, fullName: 'Payment Test Owner', phone: '0911222333' }
     });
+    ownerId = owner.id;
 
     const property = await prisma.property.create({
       data: {
@@ -51,6 +57,7 @@ describe('Payments API Endpoints', () => {
         status: 'APPROVED'
       }
     });
+    propertyId = property.id;
 
     const taxRate = await prisma.taxRate.create({
       data: {
@@ -60,6 +67,7 @@ describe('Payments API Endpoints', () => {
         createdById: adminSession.user.id
       }
     });
+    taxRateId = taxRate.id;
 
     const assessment = await prisma.taxAssessment.create({
       data: {
@@ -77,14 +85,13 @@ describe('Payments API Endpoints', () => {
   });
 
   afterAll(async () => {
-    // Cleanup in safe order
-    await prisma.kebeleConfirmation.deleteMany({});
-    await prisma.payment.deleteMany({});
-    await prisma.taxAssessment.deleteMany({});
-    await prisma.taxRate.deleteMany({});
-    await prisma.property.deleteMany({});
-    await prisma.houseOwnerProfile.deleteMany({});
-    await prisma.locationCategory.deleteMany({});
+    await prisma.kebeleConfirmation.deleteMany({ where: { paymentId } });
+    await prisma.payment.deleteMany({ where: { assessmentId } });
+    await prisma.taxAssessment.deleteMany({ where: { id: assessmentId } });
+    await prisma.taxRate.deleteMany({ where: { id: taxRateId } });
+    await prisma.property.deleteMany({ where: { id: propertyId } });
+    await prisma.houseOwnerProfile.deleteMany({ where: { id: ownerId } });
+    await prisma.locationCategory.deleteMany({ where: { id: categoryId } });
     await prisma.session.deleteMany({ where: { userId: { startsWith: 'test-' } } });
     await prisma.user.deleteMany({ where: { id: { startsWith: 'test-' } } });
   });

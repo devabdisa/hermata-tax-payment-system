@@ -16,6 +16,12 @@ export const propertyOwnersApi = {
   
   getOwner: (id: string) => 
     apiClient.get<ApiResponse<PropertyOwner>>(`/property-owners/${id}`),
+
+  getMyOwnerProfile: () =>
+    apiClient.get<ApiResponse<PropertyOwner | null>>("/property-owners/me"),
+
+  upsertMyOwnerProfile: (data: PropertyOwnerFormData) =>
+    apiClient.put<ApiResponse<PropertyOwner>>("/property-owners/me", data),
   
   createOwner: (data: PropertyOwnerFormData) => 
     apiClient.post<ApiResponse<PropertyOwner>>("/property-owners", data),

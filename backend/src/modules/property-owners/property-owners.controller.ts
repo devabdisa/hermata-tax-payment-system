@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { catchAsync } from "../../utils/catch-async";
 import { ApiResponse } from "../../utils/api-response";
 import { PropertyOwnersService } from "./property-owners.service";
+import { ApiError } from "../../utils/api-error";
 
 export const listOwners = catchAsync(async (req: Request, res: Response) => {
   const { search } = req.query;
@@ -9,6 +10,22 @@ export const listOwners = catchAsync(async (req: Request, res: Response) => {
     search: search as string,
   });
   res.status(200).json(new ApiResponse(200, owners, "Owners retrieved successfully"));
+});
+
+export const getMyOwnerProfile = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new ApiError(401, "Authentication required");
+  }
+  const owner = await PropertyOwnersService.getMyOwnerProfile(req.user.id);
+  res.status(200).json(new ApiResponse(200, owner, "My owner profile retrieved successfully"));
+});
+
+export const upsertMyOwnerProfile = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new ApiError(401, "Authentication required");
+  }
+  const owner = await PropertyOwnersService.upsertMyOwnerProfile(req.user.id, req.body);
+  res.status(200).json(new ApiResponse(200, owner, "My owner profile saved successfully"));
 });
 
 export const getOwner = catchAsync(async (req: Request, res: Response) => {

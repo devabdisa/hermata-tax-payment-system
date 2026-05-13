@@ -20,7 +20,7 @@ describe('Location Categories API Endpoints', () => {
     const category = await prisma.locationCategory.create({
       data: {
         name: `Base Cat ${Date.now()}`,
-        code: `BASE-${Math.random().toString(36).substring(7)}`,
+        code: `TEST-LC-BASE-${Math.random().toString(36).substring(7)}`,
         isActive: true
       }
     });
@@ -28,13 +28,9 @@ describe('Location Categories API Endpoints', () => {
   });
 
   afterAll(async () => {
-    // Cleanup everything at once
-    await prisma.locationCategory.deleteMany({
-      where: { code: { contains: 'TEST-' } }
-    });
-    await prisma.locationCategory.deleteMany({
-      where: { code: { contains: 'BASE-' } }
-    });
+    await prisma.taxRate.deleteMany({ where: { locationCategoryId: categoryId } });
+    await prisma.locationCategory.deleteMany({ where: { id: categoryId } });
+    await prisma.locationCategory.deleteMany({ where: { code: { startsWith: "TEST-LC-" } } });
     await prisma.session.deleteMany({
       where: { userId: { startsWith: 'test-' } }
     });
@@ -47,7 +43,7 @@ describe('Location Categories API Endpoints', () => {
     it('should create a new location category (Admin)', async () => {
       const payload = {
         name: 'Fresh Category',
-        code: `TEST-NEW-${Date.now()}`,
+        code: `TEST-LC-NEW-${Date.now()}`,
         priority: 1
       };
 
@@ -64,7 +60,7 @@ describe('Location Categories API Endpoints', () => {
       const res = await request(app)
         .post('/api/v1/location-categories')
         .set('Authorization', userAuthHeader)
-        .send({ name: 'Fail', code: `TEST-FAIL-${Date.now()}` });
+        .send({ name: 'Fail', code: `TEST-LC-FAIL-${Date.now()}` });
 
       expect(res.status).toBe(403);
     });

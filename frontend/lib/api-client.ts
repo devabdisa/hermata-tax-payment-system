@@ -51,6 +51,13 @@ export const apiClient = {
       method: "PATCH",
       body: body instanceof FormData ? body : JSON.stringify(body),
     }),
+
+  put: <T>(endpoint: string, body: any, options?: RequestInit) =>
+    apiRequest<T>(endpoint, {
+      ...options,
+      method: "PUT",
+      body: body instanceof FormData ? body : JSON.stringify(body),
+    }),
   
   delete: <T>(endpoint: string, options?: RequestInit) =>
     apiRequest<T>(endpoint, { ...options, method: "DELETE" }),

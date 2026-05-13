@@ -10,6 +10,7 @@ import RHFTextArea from "@/components/forms/RHFTextArea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Save } from "lucide-react";
 import { PropertyOwnerFormData } from "../types";
+import RHFSelect from "@/components/forms/RHFSelect";
 
 const schema = z.object({
   fullName: z.string().min(2, "Full name is required"),
@@ -23,9 +24,11 @@ interface OwnerFormProps {
   initialData?: any;
   onSubmit: (data: PropertyOwnerFormData) => void;
   isLoading?: boolean;
+  userOptions?: Array<{ value: string; label: string }>;
+  showUserSelector?: boolean;
 }
 
-export function OwnerForm({ initialData, onSubmit, isLoading }: OwnerFormProps) {
+export function OwnerForm({ initialData, onSubmit, isLoading, userOptions = [], showUserSelector = false }: OwnerFormProps) {
   const methods = useForm<PropertyOwnerFormData>({
     resolver: zodResolver(schema),
     defaultValues: initialData || {
@@ -46,6 +49,14 @@ export function OwnerForm({ initialData, onSubmit, isLoading }: OwnerFormProps) 
           <CardTitle>Owner Identity & Contact</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {showUserSelector && (
+            <RHFSelect
+              name="userId"
+              label="Linked User Account"
+              placeholder="Select user account"
+              options={userOptions}
+            />
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <RHFTextField name="fullName" label="Full Name" placeholder="e.g. Abebe Kebede" leftIcon="user" />
             <RHFTextField name="phone" label="Phone Number" placeholder="e.g. +251911..." leftIcon="phone" />

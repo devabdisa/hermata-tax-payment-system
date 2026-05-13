@@ -10,6 +10,7 @@ export interface User {
   status: UserStatus;
   createdAt: string;
   updatedAt: string;
+  ownerProfile?: { id: string } | null;
   _count?: {
     issuedAssessments: number;
     verifiedPayments: number;

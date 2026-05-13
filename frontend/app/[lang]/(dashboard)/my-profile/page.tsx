@@ -10,12 +10,22 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Mail, Shield, User as UserIcon, Calendar, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { propertyOwnersApi } from "@/features/property-owners/api";
+import { PropertyOwnerFormData } from "@/features/property-owners/types";
 
 export default function MyProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
+  const [ownerProfile, setOwnerProfile] = useState<PropertyOwnerFormData>({
+    fullName: "",
+    phone: "",
+    nationalId: "",
+    kebeleIdNumber: "",
+    address: "",
+  });
+  const [savingOwner, setSavingOwner] = useState(false);
 
   useEffect(() => {
     const fetchMe = async () => {
@@ -23,6 +33,21 @@ export default function MyProfilePage() {
         const response = await usersApi.getMe();
         setUser(response.data);
         setName(response.data.name);
+        const ownerResponse = await propertyOwnersApi.getMyOwnerProfile();
+        if (ownerResponse.data) {
+          setOwnerProfile({
+            fullName: ownerResponse.data.fullName || "",
+            phone: ownerResponse.data.phone || "",
+            nationalId: ownerResponse.data.nationalId || "",
+            kebeleIdNumber: ownerResponse.data.kebeleIdNumber || "",
+            address: ownerResponse.data.address || "",
+          });
+        } else {
+          setOwnerProfile((prev) => ({
+            ...prev,
+            fullName: response.data.name || "",
+          }));
+        }
       } catch (error) {
         console.error("Failed to fetch profile", error);
       } finally {
@@ -42,6 +67,18 @@ export default function MyProfilePage() {
       toast.error(error.message || "Failed to update profile");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleOwnerProfileSave = async () => {
+    setSavingOwner(true);
+    try {
+      await propertyOwnersApi.upsertMyOwnerProfile(ownerProfile);
+      toast.success("Owner profile saved");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to save owner profile");
+    } finally {
+      setSavingOwner(false);
     }
   };
 
@@ -128,6 +165,43 @@ export default function MyProfilePage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Owner Profile</CardTitle>
+          <CardDescription>Create or update your property owner profile information.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="ownerFullName">Full Name</Label>
+              <Input id="ownerFullName" value={ownerProfile.fullName} onChange={(e) => setOwnerProfile((p) => ({ ...p, fullName: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ownerPhone">Phone</Label>
+              <Input id="ownerPhone" value={ownerProfile.phone} onChange={(e) => setOwnerProfile((p) => ({ ...p, phone: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ownerNationalId">National ID</Label>
+              <Input id="ownerNationalId" value={ownerProfile.nationalId || ""} onChange={(e) => setOwnerProfile((p) => ({ ...p, nationalId: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ownerKebeleId">Kebele ID Number</Label>
+              <Input id="ownerKebeleId" value={ownerProfile.kebeleIdNumber || ""} onChange={(e) => setOwnerProfile((p) => ({ ...p, kebeleIdNumber: e.target.value }))} />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="ownerAddress">Address</Label>
+            <Input id="ownerAddress" value={ownerProfile.address || ""} onChange={(e) => setOwnerProfile((p) => ({ ...p, address: e.target.value }))} />
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={handleOwnerProfileSave} disabled={savingOwner}>
+              {savingOwner ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              Save Owner Profile
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

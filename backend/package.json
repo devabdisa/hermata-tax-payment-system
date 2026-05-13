@@ -14,7 +14,7 @@
     "prisma:seed": "prisma db seed",
     "prisma:studio": "prisma studio",
     "db:setup": "npm run prisma:generate && npm run prisma:migrate && npm run prisma:seed",
-    "test": "jest",
+    "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
   },
