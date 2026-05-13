@@ -43,7 +43,7 @@ export const authMiddleware = catchAsync(
       } else if (cookieHeader) {
         const cookies = cookieHeader.split(";").reduce((acc, cookie) => {
           const [name, value] = cookie.trim().split("=");
-          acc[name] = value;
+          acc[name] = decodeURIComponent(value || ""); // Add decoding
           return acc;
         }, {} as Record<string, string>);
         
@@ -55,7 +55,7 @@ export const authMiddleware = catchAsync(
           cookies["__Secure-better-auth.session_token"];
       }
 
-      console.log(`[Auth] Extracted Session Token: ${sessionToken ? "FOUND" : "NOT FOUND"}`);
+      console.log(`[Auth] Extracted Session Token: ${sessionToken ? `FOUND (starts with: ${sessionToken.substring(0, 5)}...)` : "NOT FOUND"}`);
 
       if (!sessionToken) {
         throw new ApiError(401, "Authentication required");
