@@ -56,13 +56,31 @@ export const authMiddleware = catchAsync(
         throw new ApiError(401, "Authentication required");
       }
 
-      // Verify session in database
-      const sessionData = await prisma.session.findUnique({
-        where: { token: sessionToken },
-        include: {
-          user: true,
-        },
-      });
+      // Verify session in database.
+      // Better Auth cookie values can be signed (token.signature). Try both.
+      const tokenCandidates = [sessionToken];
+      if (sessionToken.includes(".")) {
+        tokenCandidates.push(sessionToken.split(".")[0] as string);
+      }
+
+      let sessionData: {
+        user: {
+          id: string;
+          email: string;
+          role: string;
+          status: UserStatus;
+        };
+        expiresAt: Date;
+      } | null = null;
+      for (const tokenCandidate of tokenCandidates) {
+        sessionData = await prisma.session.findUnique({
+          where: { token: tokenCandidate },
+          include: {
+            user: true,
+          },
+        });
+        if (sessionData) break;
+      }
 
       if (!sessionData) {
         throw new ApiError(401, "Invalid or expired session");
