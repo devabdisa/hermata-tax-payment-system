@@ -51,20 +51,34 @@ interface DashboardPageClientProps {
 export function DashboardPageClient({ dict, lang }: DashboardPageClientProps) {
   const [data, setData] = useState<DashboardReport | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const response = await reportsApi.getDashboard();
-        setData(response.data);
-      } catch (error) {
-        console.error("Failed to fetch dashboard data", error);
-      } finally {
-        setIsLoading(false);
+  const fetchDashboard = async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    setIsUnauthorized(false);
+    try {
+      const response = await reportsApi.getDashboard();
+      setData(response.data);
+    } catch (error: any) {
+      const message = error?.message || "Failed to fetch dashboard data";
+      setErrorMessage(message);
+      const lower = String(message).toLowerCase();
+      if (
+        lower.includes("authentication required") ||
+        lower.includes("invalid or expired session") ||
+        lower.includes("session expired")
+      ) {
+        setIsUnauthorized(true);
       }
-    };
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchDashboard();
   }, []);
 
@@ -84,7 +98,29 @@ export function DashboardPageClient({ dict, lang }: DashboardPageClientProps) {
     );
   }
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <Card className="border-border/50 rounded-2xl">
+        <CardHeader>
+          <CardTitle>{dict.reports.dashboard}</CardTitle>
+          <CardDescription>
+            {errorMessage || "Dashboard data could not be loaded."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex gap-3">
+          <Button variant="outline" onClick={fetchDashboard}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Retry
+          </Button>
+          {isUnauthorized && (
+            <Button onClick={() => router.push(`/${lang}/login`)}>
+              Re-login
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
 
   // Mock previous data for trend calculation (in real app, this would come from API)
   const previousData = {

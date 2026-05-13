@@ -5,13 +5,24 @@
  * cookie issues with better-auth's HttpOnly session cookies.
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+
+function resolveApiBaseUrl() {
+  // In browser, prefer same-origin proxy to preserve Better Auth cookies.
+  if (typeof window !== "undefined") {
+    if (RAW_API_URL.startsWith("http://") || RAW_API_URL.startsWith("https://")) {
+      return "/api/v1";
+    }
+  }
+  return RAW_API_URL;
+}
 
 export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const url = `${API_URL}${endpoint}`;
+  const apiBaseUrl = resolveApiBaseUrl();
+  const url = `${apiBaseUrl}${endpoint}`;
 
   const headers = new Headers(options.headers);
 
