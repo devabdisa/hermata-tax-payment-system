@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { ArrowDown, ArrowUp, LucideIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 import { cn } from '@/lib/utils';
 
@@ -55,6 +56,8 @@ export const MetricCard = React.memo(({
   href,
   variant = 'default',
 }: MetricCardProps) => {
+  const router = useRouter();
+  
   // Format number values with thousands separator
   const formattedValue = React.useMemo(() => {
     if (typeof value === 'number') {
@@ -71,7 +74,7 @@ export const MetricCard = React.memo(({
         'premium-card p-6 transition-colors duration-300 group cursor-pointer relative overflow-hidden',
         className,
       )}
-      onClick={() => href && (window.location.href = href)}
+      onClick={() => href && router.push(href)}
     >
       {/* Subtle glow effect on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />

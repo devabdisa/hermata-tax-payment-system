@@ -106,6 +106,8 @@ export default function ReviewPropertyPage() {
         onApprove={handleApprove}
         onReject={handleReject}
         isLoading={isActionLoading}
+        missingCategory={!property.locationCategoryId}
+        propertyId={id}
       />
 
       <Separator />

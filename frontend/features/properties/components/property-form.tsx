@@ -162,7 +162,7 @@ export function PropertyForm({
             </div>
             <p className="text-foreground font-medium">Document Upload</p>
             <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
-              Document upload functionality is available in the Property Documents module after registration.
+              You will be automatically redirected to upload supporting documents immediately after saving this property.
             </p>
           </div>
         </SectionCard>

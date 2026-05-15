@@ -13,18 +13,25 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Home, User, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { PropertyStatusBadge } from "@/features/properties/components/property-status-badge";
+import { useSession } from "@/lib/auth-client";
 
 interface PropertyDocumentsPageClientProps {
-  propertyId: string;
+  propertyId?: string;
 }
 
 export function PropertyDocumentsPageClient({ propertyId }: PropertyDocumentsPageClientProps) {
   const router = useRouter();
   const params = useParams();
   const lang = (params?.lang as string) || "en";
+  const { data: session } = useSession();
+  const role = (session?.user as any)?.role?.toUpperCase();
+  
+  const canReview = role === "ADMIN" || role === "MANAGER" || role === "ASSIGNED_WORKER";
+  const canReplace = role === "USER" || role === "ADMIN";
+
   const [property, setProperty] = useState<Property | null>(null);
   const [documents, setDocuments] = useState<PropertyDocument[]>([]);
-  const [isLoadingProperty, setIsLoadingProperty] = useState(true);
+  const [isLoadingProperty, setIsLoadingProperty] = useState(!!propertyId);
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   
@@ -34,6 +41,7 @@ export function PropertyDocumentsPageClient({ propertyId }: PropertyDocumentsPag
   const [search, setSearch] = useState("");
 
   const fetchData = async () => {
+    if (!propertyId) return;
     setIsLoadingProperty(true);
     try {
       const response = await propertiesApi.getProperty(propertyId);
@@ -50,7 +58,7 @@ export function PropertyDocumentsPageClient({ propertyId }: PropertyDocumentsPag
     setIsLoadingDocuments(true);
     try {
       const response = await propertyDocumentsApi.getDocuments({
-        propertyId,
+        ...(propertyId && { propertyId }),
         page: currentPage,
         search,
       });
@@ -108,25 +116,29 @@ export function PropertyDocumentsPageClient({ propertyId }: PropertyDocumentsPag
     );
   }
 
-  if (!property) return null;
-
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-8 pb-12">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.push(`/${lang}/properties/${propertyId}`)}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
+        {propertyId && (
+          <Button variant="ghost" size="icon" onClick={() => router.push(`/${lang}/properties/${propertyId}`)}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Property Documents</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            {propertyId ? "Property Documents" : "All Documents"}
+          </h1>
           <p className="text-muted-foreground">
-            Supporting evidence for House #{property.houseNumber}
+            {propertyId 
+              ? `Supporting evidence for House #${property?.houseNumber}`
+              : "Manage all uploaded property documents"}
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-1 space-y-6">
-          <Card className="border-primary/5 bg-primary/5">
+      {propertyId && property && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          <Card className="border-primary/5 bg-primary/5 h-full">
             <CardContent className="pt-6 space-y-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                 <Home className="h-4 w-4" />
@@ -164,23 +176,23 @@ export function PropertyDocumentsPageClient({ propertyId }: PropertyDocumentsPag
             isLoading={isUploading} 
           />
         </div>
+      )}
 
-        <div className="md:col-span-2 space-y-6">
-          <PropertyDocumentsTable 
-            documents={documents}
-            isLoading={isLoadingDocuments}
-            totalItems={totalItems}
-            totalPages={totalPages}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-            onSearch={setSearch}
-            onApprove={handleApprove}
-            onReject={handleReject}
-            onReplace={handleReplace}
-            canReview={true} // TODO: Add actual permission check
-            canReplace={true} // TODO: Add actual permission check
-          />
-        </div>
+      <div className="space-y-6">
+        <PropertyDocumentsTable 
+          documents={documents}
+          isLoading={isLoadingDocuments}
+          totalItems={totalItems}
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          onSearch={setSearch}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          onReplace={handleReplace}
+          canReview={canReview}
+          canReplace={canReplace}
+        />
       </div>
     </div>
   );

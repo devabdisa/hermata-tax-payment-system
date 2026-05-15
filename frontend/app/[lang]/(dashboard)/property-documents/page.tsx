@@ -1,24 +1,9 @@
-﻿import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PropertyDocumentsPageClient } from "@/features/property-documents/components/property-documents-page-client";
 
 export default function PropertyDocumentsPage() {
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Property Documents</CardTitle>
-          <CardDescription>
-            Manage Property Documents and related operations.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex h-[450px] items-center justify-center rounded-md border border-dashed">
-            <div className="text-center">
-              <h3 className="text-lg font-medium text-muted-foreground">Property Documents Module Placeholder</h3>
-              <p className="text-sm text-muted-foreground">Business logic and data tables will be implemented here.</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <PropertyDocumentsPageClient />
     </div>
   );
 }

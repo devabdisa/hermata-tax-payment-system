@@ -9,6 +9,8 @@ import FormProvider from "@/components/forms/FormProvider";
 import RHFTextArea from "@/components/forms/RHFTextArea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, XCircle, Play, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 interface PropertyReviewFormProps {
   status: string;
@@ -16,6 +18,8 @@ interface PropertyReviewFormProps {
   onApprove: () => void;
   onReject: (data: RejectPropertyInput) => void;
   isLoading?: boolean;
+  missingCategory?: boolean;
+  propertyId?: string;
 }
 
 export function PropertyReviewForm({
@@ -24,7 +28,10 @@ export function PropertyReviewForm({
   onApprove,
   onReject,
   isLoading,
+  missingCategory,
+  propertyId,
 }: PropertyReviewFormProps) {
+  const params = useParams();
   const methods = useForm<RejectPropertyInput>({
     resolver: zodResolver(rejectPropertySchema),
     defaultValues: {
@@ -47,15 +54,30 @@ export function PropertyReviewForm({
           )}
 
           {(status === "SUBMITTED" || status === "UNDER_REVIEW") && (
-            <Button 
-              onClick={onApprove} 
-              variant="default" 
-              className="bg-emerald-600 hover:bg-emerald-700"
-              disabled={isLoading}
-            >
-              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
-              Approve Property
-            </Button>
+            <div className="flex flex-col gap-3">
+              <Button 
+                onClick={onApprove} 
+                variant="default" 
+                className="bg-emerald-600 hover:bg-emerald-700 w-fit"
+                disabled={isLoading || missingCategory}
+              >
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+                Approve Property
+              </Button>
+              {missingCategory && (
+                <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 p-3 rounded-md max-w-md">
+                  <strong>Cannot Approve:</strong> This property is missing a Location Category. You must{" "}
+                  {propertyId ? (
+                    <Link href={`/${params.lang || 'en'}/properties/${propertyId}/edit`} className="font-semibold underline hover:text-amber-800">
+                      edit the property details
+                    </Link>
+                  ) : (
+                    "edit the property details"
+                  )}
+                  {" "}to assign a location category before you can approve it.
+                </div>
+              )}
+            </div>
           )}
         </div>
 

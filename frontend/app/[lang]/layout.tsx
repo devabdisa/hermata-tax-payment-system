@@ -10,10 +10,6 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-export async function generateStaticParams() {
-  return SUPPORTED_LOCALES.map((lang) => ({ lang }));
-}
-
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
@@ -22,6 +18,7 @@ export const metadata: Metadata = {
 };
 
 import { GlobalCommandPalette } from "@/components/global-command-palette";
+import NextTopLoader from "nextjs-toploader";
 
 export default async function RootLayout({
   children,
@@ -38,6 +35,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans bg-mesh-light dark:bg-mesh-dark bg-fixed">
+        <NextTopLoader color="#10b981" showSpinner={false} />
         <ThemeProvider>
           {children}
           <GlobalCommandPalette lang={lang} />
