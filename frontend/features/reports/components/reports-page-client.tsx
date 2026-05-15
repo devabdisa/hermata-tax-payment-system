@@ -14,6 +14,10 @@ import { ReportFilters } from "../types";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 
+import { PageShell } from "@/components/ui/page-shell";
+import { PageHeader } from "@/components/ui/page-header";
+import { BarChart3 } from "lucide-react";
+
 interface ReportsPageClientProps {
   dict: Dictionary;
   lang: string;
@@ -29,7 +33,17 @@ export function ReportsPageClient({ dict, lang }: ReportsPageClientProps) {
   };
 
   return (
-    <div className="space-y-8">
+    <PageShell>
+      <PageHeader
+        title={dict.common.reports}
+        description="Comprehensive analytics and operational monitoring for the kebele house tax system."
+        icon={BarChart3}
+        breadcrumbs={[
+          { label: dict.common.dashboard, href: `/${lang}/dashboard` },
+          { label: dict.common.reports, href: `/${lang}/reports` }
+        ]}
+      />
+      <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
         <ReportFilterBar filters={filters} setFilters={setFilters} dict={dict} />
         <Button variant="outline" onClick={handlePrint} className="h-11 rounded-xl gap-2 border-slate-200">
@@ -85,5 +99,6 @@ export function ReportsPageClient({ dict, lang }: ReportsPageClientProps) {
         </TabsContent>
       </Tabs>
     </div>
+    </PageShell>
   );
 }

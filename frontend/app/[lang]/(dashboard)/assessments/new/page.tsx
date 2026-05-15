@@ -4,6 +4,7 @@ import { AssessmentForm } from "@/features/assessments/components/assessment-for
 import { assessmentsApi } from "@/features/assessments/api";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
+import { useSession } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -13,7 +14,14 @@ function NewAssessmentContent() {
   const params = useParams();
   const lang = (params?.lang as string) || "en";
   const searchParams = useSearchParams();
+  const { data: session, isPending } = useSession();
   const [isLoading, setIsLoading] = useState(false);
+
+  const role = (session?.user as any)?.role || "USER";
+  if (!isPending && role === "USER") {
+    router.push(`/${lang}/assessments`);
+    return null;
+  }
 
   const initialPropertyId = searchParams.get("propertyId") || "";
 

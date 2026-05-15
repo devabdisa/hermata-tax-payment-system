@@ -12,6 +12,8 @@ import { type Dictionary } from "@/lib/get-dictionary";
 import { PageShell } from "@/components/ui/page-shell";
 import { PageHeader } from "@/components/ui/page-header";
 
+import { useSession } from "@/lib/auth-client";
+
 interface AssessmentsPageClientProps {
   dict: Dictionary;
 }
@@ -21,8 +23,11 @@ function AssessmentsPageContent({ dict }: AssessmentsPageClientProps) {
   const params = useParams();
   const lang = (params?.lang as string) || "en";
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
   const [assessments, setAssessments] = useState<TaxAssessment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const isWorkerOrAdmin = session?.user && ["ADMIN", "MANAGER", "ASSIGNED_WORKER"].includes((session.user as any).role || "USER");
   
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -65,14 +70,14 @@ function AssessmentsPageContent({ dict }: AssessmentsPageClientProps) {
           { label: dict.common.dashboard, href: `/${lang}/dashboard` },
           { label: dict.common.assessments, href: `/${lang}/assessments` }
         ]}
-        actions={[
+        actions={isWorkerOrAdmin ? [
           {
             label: `Create ${dict.common.assessments}`,
             onClick: () => router.push(`/${lang}/assessments/new`),
             icon: Plus,
             variant: "default"
           }
-        ]}
+        ] : []}
       />
 
       <AssessmentsTable

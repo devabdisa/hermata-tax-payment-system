@@ -19,14 +19,6 @@ export default async function ReportsPage({ params }: { params: Promise<{ lang: 
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-4xl font-black tracking-tight text-slate-900 uppercase italic">
-          {dict.common.reports}
-        </h1>
-        <p className="text-slate-500 font-medium max-w-2xl">
-          Comprehensive analytics and operational monitoring for the kebele house tax system.
-        </p>
-      </div>
 
       <ReportsPageClient dict={dict} lang={lang} />
     </div>
